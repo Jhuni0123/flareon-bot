@@ -1,8 +1,7 @@
-server = "irc.uriirc.org"
+server = 'irc.uriirc.org'
 
 port = 16664
 
-botnick = 'Jh-bot'
+botnick = 'JH-bot2'
 
-botname = 'Jhbot'
-
+botname = 'JHbot'

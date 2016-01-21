@@ -18,7 +18,7 @@ def Chib(n):
     return fib[r-2] + Chib(n-fib[r-1])
 
 def EE(n):
-    if n==2:
+    if n==2 or n==0:
         return False
     while n>0:
         if n%10 !=2:

@@ -1,38 +1,44 @@
-#-*- coding: utf-8 -*-
 import re
+
 
 class IRCMessage():
     msgType = None
-    senderNick = None
-    sender =None
+    sender = None
     channel = None
     msg = None
     target = None
 
     def __init__(self, origMessage):
-        parse = re.search(r'^:(.*)!~?(\S+)\s+(\S+)\s+(.*?)\s+:?(.*)',origMessage)
+        parse = re.search('^(?:[:](\S+)!\S+ )?(\S+)(?: (?!:)(.+?))?(?: [:](.+))?$', origMessage)
         if parse:
-            self.senderNick = parse.group(1)
-            self.sender = parse.group(2)
-            self.msgType = parse.group(3)
-            self.channel = parse.group(4)
-            self.msg = parse.group(5)
+            self.msgType = parse.group(2)
             if self.msgType == 'INVITE':
-                self.channel = parse.group(5)
-            if self.senderNick == 'B':
-                parse = re.match(r'<.(\S+)> (.*)',self.msg)
-                if parse:
-                    self.sendernick = parse.group(1)
-                    self.msg = parse.group(2)
-            if self.msg:
-                self.msg = self.msg.decode('utf-8')
-            
+                self.sender = parse.group(1)
+                self.target = parse.group(3)
+                self.channel = parse.group(4)
+            elif self.msgType == 'PRIVMSG':
+                self.sender = parse.group(1)
+                self.channel = parse.group(3)
+                self.msg = parse.group(4)
+            elif self.msgType == 'MODE':
+                self.sender = parse.group(1)
+                self.channel = parse.group(3).split(' ', maxsplit=1)[0]
+                self.msg = parse.group(3).split(' ', maxsplit=1)[1]
+            elif self.msgType == 'JOIN':
+                self.sender = parse.group(1)
+                self.channel = parse.group(4)
+            elif self.msgType == 'PING':
+                self.sender = parse.group(4)
         else:
             pass
 
-
     def __repr__(self):
         msg = self.msg
-        if msg:
-            msg = msg.encode('utf-8')
-        return '<IRCMessage : %s %s %s %s %s %s>' % (self.msgType, self.senderNick, self.sender, self.channel, msg, self.target)
+        return '<IRCMessage : %s %s %s %s %s>' \
+               % (self.msgType, self.sender, self.channel, msg, self.target)
+
+    def isValid(self):
+        if self.msgType == None:
+            return False
+        else:
+            return True
