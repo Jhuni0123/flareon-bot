@@ -18,7 +18,7 @@ class IRCConnector(threading.Thread):
         s.connect((server, port))
         self.ircsock = ssl.wrap_socket(s)
         self.ircsock.send(('USER ' + (botname + ' ') * 3 + ':' +
-                           botnick + '\n').encode())
+                           botname + '\n').encode())
         self.ircsock.send(('NICK ' + botnick + '\n').encode())
 
         self.msgQueue = msgQueue
@@ -55,10 +55,10 @@ class IRCConnector(threading.Thread):
             except e:
                 print(e)
             else:
-                print(ircmsg)
+                #print(ircmsg)
                 message = IRCMessage(ircmsg)
                 if message.isValid():
-                    print(message)
+                    #print(message)
                     if message.msgType == 'PING':
                         self.ping()
                     else:

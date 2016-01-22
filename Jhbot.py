@@ -31,10 +31,14 @@ class Bot():
                 if message.msgType == 'INVITE':
                     self.irc.joinchan(message.channel)
 
+                elif message.msgType == 'NOTICE':
+                    if message.sender == 'Jhuni' and message.channel == botnick:
+                        self.irc.semdmsg('#snucse16',message.msg)
+                        continue
                 elif message.msgType == 'MODE':
                     if message.msg == '+o ' + botnick:
                         self.irc.sendmsg(message.channel, '>ㅅ<')
-                    if message.msg == '-o ' + botnick:
+                    elif message.msg == '-o ' + botnick:
                         self.irc.sendmsg(message.channel, 'ㅇㅅㅇ..')
 
                 elif message.msgType == 'PRIVMSG':
@@ -50,6 +54,7 @@ class Bot():
                             scr = Score(sen)
                             if scr == 100:
                                 self.irc.sendmsg(message.channel, "'%s'은(는) %d점짜리 입니다" % (contents,scr))
+                                continue
                             else:
                                 self.irc.sendmsg(message.channel, "'%s'은(는) %d점" % (contents, scr))
                                 continue
@@ -87,7 +92,14 @@ class Bot():
                         else:
                             self.irc.sendmsg(message.channel, '[fib] %d' % fib[num])
                         continue
-                    
+                    parse = re.match(r'!백준\s+(\d+)$',message.msg)
+                    if parse:
+                        num = int(parse.group(1))
+                        if 1000 <= num < 100000:
+                            self.irc.sendmsg(message.channel, 'https://www.acmicpc.net/problem/%d' % num)
+                            continue
+                    if message.msg.find('부스터') != -1 or message.msg.find('유일왕') != -1:
+                        self.irc.sendmsg(message.channel, '크앙')
 
 if __name__ == '__main__':
     bot = Bot()

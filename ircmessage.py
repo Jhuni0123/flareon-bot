@@ -16,10 +16,19 @@ class IRCMessage():
                 self.sender = parse.group(1)
                 self.target = parse.group(3)
                 self.channel = parse.group(4)
+            if self.msgType == 'NOTICE':
+                self.sender = parse.group(1)
+                self.channel = parse.group(3)
+                self.msg = parse.group(4)
             elif self.msgType == 'PRIVMSG':
                 self.sender = parse.group(1)
                 self.channel = parse.group(3)
                 self.msg = parse.group(4)
+                if self.sender == 'B':
+                    parse = re.match('<.(\S+)> (.*)$', self.msg)
+                    if parse:
+                        self.sender = parse.group(1)
+                        self.msg = parse.group(2)
             elif self.msgType == 'MODE':
                 self.sender = parse.group(1)
                 self.channel = parse.group(3).split(' ', maxsplit=1)[0]
