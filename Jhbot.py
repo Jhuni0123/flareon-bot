@@ -6,6 +6,8 @@ from queue import Queue
 from score import Sent, Score
 from chib import fib, Chib, EE, Bi, Mkbi, Mkd
 import re
+from bojcrawl import BOJCrawl
+from cfcrawl import CFCrawl
 class Bot():
     irc = None
     msgQueue = Queue()
@@ -49,7 +51,7 @@ class Bot():
                         if command == '점수' or command == 'score':
                             sen = Sent(contents)
                             if sen == '':
-                                self.irc.sendmsg(message.channel, "'%s'은(는) 적절하지 않은 영단어입니다" % contents)
+                                self.irc.sendmsg(message.channel, "적절하지 않은 영단어입니다")
                                 continue
                             scr = Score(sen)
                             if scr == 100:
@@ -65,8 +67,10 @@ class Bot():
                         if etc == '명' or etc == '':
                             if num == 1:
                                 self.irc.sendmsg(message.channel, '1인1닭은 진리입니다')
+                                continue
                             elif num == 2:
-                                self.irc.sendmsg(message.channel, '계산상 1마리지만 1인1닭의 진리에 따라 2마리의 치킨이 적절합니다')
+                                self.irc.sendmsg(message.channel, '계산상 1마리지만 1인1닭에 따라 2마리가 적절합니다')
+                                continue
                             elif num >= 573147844013817084101:
                                 self.irc.sendmsg(message.channel, '필요한 치킨이 너무 많아 셀 수 없습니다')
                                 continue
@@ -79,9 +83,10 @@ class Bot():
                             if Bi(num):
                                 self.irc.sendmsg(message.channel, '%s명에게는 %s마리의 치킨이 적절합니다' % (Mkbi(Mkd(num)), Mkbi(Chib(int(Mkd(num))))))
                             continue
-                    if message.msg.find('치킨') != -1 and message.msg.find('치킨') < message.msg.find('먹') < message.msg.find('싶'):
+
+                    """if message.msg.find('치킨') != -1 and message.msg.find('치킨') < message.msg.find('먹') < message.msg.find('싶'):
                         self.irc.sendmsg(message.channel, '치킨!')
-                        continue
+                        continue"""
                     parse = re.match(r'!fib\s+(-?\d+)$',message.msg)
                     if parse:
                         num = int(parse.group(1))
@@ -95,10 +100,19 @@ class Bot():
                     parse = re.match(r'!백준\s+(\d+)$',message.msg)
                     if parse:
                         num = int(parse.group(1))
-                        if 1000 <= num < 100000:
-                            self.irc.sendmsg(message.channel, 'https://www.acmicpc.net/problem/%d' % num)
-                            continue
-                    if message.msg.find('부스터') != -1 or message.msg.find('유일왕') != -1:
+                        url = 'https://www.acmicpc.net/problem/%d' % num
+                        title = BOJCrawl(url)
+                        if title:
+                            self.irc.sendmsg(message.channel, title + ' - ' + 'https://icpc.me/%d' % num)
+                        else:
+                            self.irc.sendmsg(message.channel, 'Not found')
+                        continue
+                    if message.msg == '!코포':
+                        contestlist = CFCrawl()
+                        for con in contestlist:
+                            self.irc.sendmsg(message.channel, '[%s]%s/%s/%s' % (con[0],con[1],con[2],con[3]))
+                        continue
+                    if message.msg.find('부스터') != -1:
                         self.irc.sendmsg(message.channel, '크앙')
 
 if __name__ == '__main__':
