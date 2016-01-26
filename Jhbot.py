@@ -84,9 +84,9 @@ class Bot():
                                 self.irc.sendmsg(message.channel, '%s명에게는 %s마리의 치킨이 적절합니다' % (Mkbi(Mkd(num)), Mkbi(Chib(int(Mkd(num))))))
                             continue
 
-                    """if message.msg.find('치킨') != -1 and message.msg.find('치킨') < message.msg.find('먹') < message.msg.find('싶'):
+                    if message.msg.find('치킨') != -1 and message.msg.find('치킨') < message.msg.find('먹') < message.msg.find('싶'):
                         self.irc.sendmsg(message.channel, '치킨!')
-                        continue"""
+                        continue
                     parse = re.match(r'!fib\s+(-?\d+)$',message.msg)
                     if parse:
                         num = int(parse.group(1))
