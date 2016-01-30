@@ -4,7 +4,7 @@ import re
 
 
 def DateCrawl(url):
-    plainCode = requests.get(url)
+    plainCode = requests.get(url,timeout=10)
     plainText = plainCode.text
     soup = BeautifulSoup(plainText, 'html.parser')
     div = soup.select('div#evt-wrp-2 > div.evt-wrp')[0]
@@ -15,7 +15,7 @@ def DateCrawl(url):
     
 def CFCrawl():
     url = 'http://codeforces.com/contests'
-    plainCode = requests.get(url)
+    plainCode = requests.get(url,timeout=10)
     plainText = plainCode.text
     soup = BeautifulSoup(plainText, 'html.parser')
     table = soup.select('div.contestList > div.datatable > div > table')
@@ -33,4 +33,4 @@ def CFCrawl():
         contestList.append((roundname, date, length, remain))
     return contestList
 
-CFCrawl()
+#CFCrawl()

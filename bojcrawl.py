@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import re
 
 def BOJCrawl(url):
-    plainCode = requests.get(url)
+    plainCode = requests.get(url,timeout=10)
     plainText = plainCode.text
     soup = BeautifulSoup(plainText, 'html.parser')
     titletag = soup.select('head > title')

@@ -29,7 +29,7 @@ class Bot():
 
             elif packet['type'] == 'irc':
                 message = packet['content']
-                print(message)
+                #print(message)
                 if message.msgType == 'INVITE':
                     self.irc.joinchan(message.channel)
 
