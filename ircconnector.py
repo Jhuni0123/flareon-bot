@@ -15,8 +15,9 @@ class IRCConnector(threading.Thread):
     def __init__(self, msgQueue):
         threading.Thread.__init__(self)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((server, port))
         self.ircsock = ssl.wrap_socket(s)
+        self.ircsock.connect((server, port))
+        
         self.ircsock.send(('USER ' + (botname + ' ') * 3 + ':' +
                            botname + '\n').encode())
         self.ircsock.send(('NICK ' + botnick + '\n').encode())

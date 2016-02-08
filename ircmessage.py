@@ -16,7 +16,7 @@ class IRCMessage():
                 self.sender = parse.group(1)
                 self.target = parse.group(3)
                 self.channel = parse.group(4)
-            if self.msgType == 'NOTICE':
+            elif self.msgType == 'NOTICE':
                 self.sender = parse.group(1)
                 self.channel = parse.group(3)
                 self.msg = parse.group(4)

@@ -44,6 +44,8 @@ class Bot():
                         self.irc.sendmsg(message.channel, 'ㅇㅅㅇ..')
 
                 elif message.msgType == 'PRIVMSG':
+                    if (message.sender in [r'\b','C','bryan_a','cubeIover','VBChunguk_bot','gn','kcm1700-bot','치즈','Diet-bot']):
+                        continue
                     parse = re.match(r'!(\S+)\s+(.*)$',message.msg)
                     if parse:
                         command = parse.group(1)
@@ -104,14 +106,20 @@ class Bot():
                         title = BOJCrawl(url)
                         if title:
                             self.irc.sendmsg(message.channel, title + ' - ' + 'https://icpc.me/%d' % num)
-                        else:
+                        elif title == None:
                             self.irc.sendmsg(message.channel, 'Not found')
+                        elif title == False:
+                            self.irc.sendmsg(message.channel, 'Timeout')
                         continue
                     if message.msg == '!코포':
                         contestlist = CFCrawl()
-                        for con in contestlist:
-                            self.irc.sendmsg(message.channel, '[%s]%s/%s/%s' % (con[0],con[1],con[2],con[3]))
-                        continue
+                        if contestlist:
+                            for con in contestlist:
+                                self.irc.sendmsg(message.channel, '[%s]%s/%s/%s' % (con[0],con[1],con[2],con[3]))
+                            continue
+                        else:
+                            self.irc.sendmsg(message.channel, 'time-out')
+                            continue
                     if message.msg.find('부스터') != -1:
                         self.irc.sendmsg(message.channel, '크앙')
 
