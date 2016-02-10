@@ -30,6 +30,9 @@ class IRCConnector(threading.Thread):
     def sendmsg(self, chan, msg):
         self.ircsock.send(('PRIVMSG ' + chan + ' :' + msg + '\n').encode())
 
+    def sendmode(self, chan, msg):
+        self.ircsock.send(('MODE ' + chan + ' ' + msg + '\n').encode())
+
     def joinchan(self, chan):
         self.ircsock.send(('JOIN ' + chan + '\n').encode())
 
@@ -56,7 +59,7 @@ class IRCConnector(threading.Thread):
             except e:
                 print(e)
             else:
-                #print(ircmsg)
+                print(ircmsg)
                 message = IRCMessage(ircmsg)
                 if message.isValid():
                     #print(message)
