@@ -59,7 +59,7 @@ class IRCConnector(threading.Thread):
             except e:
                 print(e)
             else:
-                print(ircmsg)
+                #print(ircmsg)
                 message = IRCMessage(ircmsg)
                 if message.isValid():
                     #print(message)

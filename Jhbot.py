@@ -97,7 +97,7 @@ class Bot():
                             if parse:
                                 name1 = parse.group(1)
                                 name2 = parse.group(2)
-                                print(name1,name2)
+                                
                                 if (name1 in self.nameList) and (name2 in self.nameList):
                                     name1=self.nameDic[name1]
                                     name2=self.nameDic[name2]
@@ -108,7 +108,7 @@ class Bot():
                                         m1 = m1/100.0
                                     if self.exDic[name2][1]:
                                         m2 = m2/100.0
-                                    print(m1,m2)
+                                    
                                     self.irc.sendmsg(message.channel, '1 %s = %.4f %s' % (name1, m1/m2, name2))
                                     continue
                                 else :
