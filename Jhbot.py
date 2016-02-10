@@ -28,6 +28,7 @@ class Bot():
         self.exDic = MakeExDic(self.exList)
         
     def run(self):
+        print('RUNNING')
         while True:
             packet = self.msgQueue.get()
             if packet['type'] == 'msg':
@@ -75,7 +76,7 @@ class Bot():
                                     self.irc.sendmsg(message.channel, self.exList[0][1])
                                     continue
                                 if cname == 'help' or cname == '도움':
-                                    self.irc.sendmsg(message.channel, 'ex)!환율 (나라|심볼) [(-> (나라|심볼))|정수]')
+                                    self.irc.sendmsg(message.channel, 'ex)!환율 USD [(-> 한국)|50]')
                                     continue
                                 
                                 if cname in self.nameList:
@@ -114,7 +115,7 @@ class Bot():
                                 else :
                                     self.irc.sendmsg(message.channel, 'Not found')
                                     continue
-                            self.irc.sendmsg(message.channel, 'ex)!환율 (나라|심볼) [-> (나라|심볼)]')
+                            self.irc.sendmsg(message.channel, 'ex)!환율 USD [(-> 한국)|50]')
                             continue
                     parse = re.match(r'!(\S+)\s+(.*)$',message.msg)
                     if parse:
@@ -205,8 +206,8 @@ class Bot():
             self.exDic = MakeExDic(self.exList)
             
     def start(self):
-        threading.Thread(target = self.run,daemon = True).start()
         threading.Thread(target = self.loopCrawl, daemon = True).start()
+        self.run()
 if __name__ == '__main__':
     bot = Bot()
     bot.start()
