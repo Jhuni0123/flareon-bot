@@ -23,6 +23,7 @@ class IRCConnector(threading.Thread):
         self.ircsock.send(('NICK ' + botnick + '\n').encode())
 
         self.msgQueue = msgQueue
+        
 
     def ping(self):
         self.ircsock.send(('PONG :pingis\n').encode())

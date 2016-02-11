@@ -7,8 +7,11 @@ from score import Sent, Score
 from chib import fib, Chib, EE, Bi, Mkbi, Mkd
 import re, threading, time
 from bojcrawl import BOJCrawl
-from cfcrawl import CFCrawl
+from cfcrawl import CFCrawl,CFAPI
 from exchangecrawl import ExchangeCrawl, MakeNameDic, MakeExDic
+
+
+
 class Bot():
     irc = None
     msgQueue = Queue()
@@ -179,11 +182,15 @@ class Bot():
                         elif title == False:
                             self.irc.sendmsg(message.channel, 'Timeout')
                         continue
+                    if message.msg == '!환율':
+                        self.irc.sendmsg(message.channel, 'ex)!환율 USD [(-> 한국)|50]')
+                        continue
                     if message.msg == '!코포':
-                        contestlist = CFCrawl()
+                        contestlist = CFAPI()
                         if contestlist:
-                            for con in contestlist:
-                                self.irc.sendmsg(message.channel, '[%s]%s/%s/%s' % (con[0],con[1],con[2],con[3]))
+                            for i  in range(min(len(contestlist),2)):
+                                con = contestlist[i]
+                                self.irc.sendmsg(message.channel, '[%s] %s | %s | %s %s' % (con[0],con[1], con[2],con[3],con[4]))
                             continue
                         else:
                             self.irc.sendmsg(message.channel, 'Timeout')

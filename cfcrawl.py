@@ -1,6 +1,6 @@
-import requests
+import requests, json
 from bs4 import BeautifulSoup
-import re
+import re, time
 
 
 def DateCrawl(url):
@@ -40,4 +40,45 @@ def CFCrawl():
         contestList.append((roundname, date, length, remain))
     return contestList
 
-#CFCrawl()
+def CFAPI():
+    wdays = ['월','화','수','목','금','토','일']
+    try:
+        #stime = time.time()
+        plainCode = requests.get('http://codeforces.com/api/contest.list',timeout = 5)
+        #etime = time.time()
+        #print(etime-stime)
+        now = round(time.time())
+    except:
+        return False
+    plainText = plainCode.text
+    Dic = json.loads(plainText)
+    if Dic['status']=='OK':
+        List = Dic['result']
+    else:
+        return False
+    conList = []
+    for cont in List:
+        if cont['phase'] == 'FINISHED':
+            break
+        name = cont['name']
+        phase = cont['phase']
+        durationsec = round(cont['durationSeconds'])
+        duration = '%02d:%02d' % (durationsec//60//60%24, durationsec//60%60)
+        startTimesec = cont['startTimeSeconds']
+        startDate = time.strftime("%Y년 %m월 %d일",time.localtime(startTimesec))
+        startTime = time.strftime("%H:%M",time.localtime(startTimesec))
+        wday = wdays[time.localtime(startTimesec).tm_wday] + '요일'
+        start = '%s %s %s' % (startDate, wday, startTime)  
+        relsec = round(cont['relativeTimeSeconds'])
+        if relsec>0:
+            remainsec = durationsec - relsec
+        else:
+            remainsec = -relsec
+        remain = '%02d:%02d:%02d' % (remainsec//60//60%24, remainsec//60%60, remainsec%60)
+        if remainsec//60//60//24 > 0:
+            remain = '%dday%s ' % (remainsec/60/60/24, '' if remainsec//60//60//24 == 1 else 's') + remain
+        conList = [(name,start,duration,phase,remain)] + conList[:]
+    return conList
+
+
+CFAPI()
