@@ -7,8 +7,8 @@ from score import Sent, Score
 from chib import fib, Chib, EE, Bi, Mkbi, Mkd
 import re, threading, time
 from bojcrawl import BOJCrawl
-from cfcrawl import CFCrawl,CFAPI
-from exchangecrawl import ExchangeCrawl, MakeNameDic, MakeExDic
+from cfcrawl import CFAPI,InitCFChangeList,CFRatingChange
+from exchangecrawl import ExchangeCrawl, MakeNameDic, MakeExDic, Exmsg
 
 
 
@@ -19,7 +19,6 @@ class Bot():
     exList = None
     nameDic = None
     exDic = None
-    nameList = None
     def __init__(self):
         from ircconnector import IRCConnector
         self.irc = IRCConnector(self.msgQueue)
@@ -27,7 +26,6 @@ class Bot():
         self.irc.start()
         self.exList = ExchangeCrawl()
         self.nameDic = MakeNameDic(self.exList)
-        self.nameList = list(self.nameDic.keys())
         self.exDic = MakeExDic(self.exList)
         
     def run(self):
@@ -58,72 +56,15 @@ class Bot():
                 elif message.msgType == 'PRIVMSG':
                     if (message.sender in [r'\b','C','bryan_a','cubeIover','VBChunguk_bot','gn','kcm1700-bot','치즈','Diet-bot','JW270','Bonobot']):
                         continue
-                    parse = re.match(r'!(\S+)(\s+.*)$',message.msg)
-                    if parse:
-                        command = parse.group(1)
-                        contents = parse.group(2).strip(' \t\n\r')
-                        if command == '환율':
-                            parse = re.match(r'(\S+)\s*([^0-9 \t\n\r\f\v]*)\s*(\d*)$',contents)
-                            if parse:
-                                cname = parse.group(1)
-                                if parse.group(2) == '공화국':
-                                    cname = cname + ' ' + parse.group(2)
-                                else:
-                                    cname = cname + parse.group(2)
-                                num = parse.group(3)
-                                if num =='':
-                                    num == None
-                                else:
-                                    num = int(num)
-                                if cname == 'info' or cname == '정보':
-                                    self.irc.sendmsg(message.channel, self.exList[0][1])
-                                    continue
-                                if cname == 'help' or cname == '도움':
-                                    self.irc.sendmsg(message.channel, 'ex)!환율 USD [(-> 한국)|50]')
-                                    continue
-                                
-                                if cname in self.nameList:
-                                    cname = self.nameDic[cname]
-                                    cname
-                                    if self.exDic[cname][1]:
-                                        m1 = 100
-                                    else:
-                                        m1 = 1
-                                    m = self.exDic[cname][0]
-                                    if num:
-                                        m = m/m1
-                                        m1 = num
-                                        m = m*num
-                                    self.irc.sendmsg(message.channel, '%d %s = %.2f KRW' % (m1,cname,m))
-                                    continue
-                                
-                            parse = re.match(r'(\S+)\s*->\s*(\S+)$',contents)
-                            if parse:
-                                name1 = parse.group(1)
-                                name2 = parse.group(2)
-                                
-                                if (name1 in self.nameList) and (name2 in self.nameList):
-                                    name1=self.nameDic[name1]
-                                    name2=self.nameDic[name2]
-                                    m1=self.exDic[name1][0]
-                                    m2=self.exDic[name2][0]
-                                    
-                                    if self.exDic[name1][1]:
-                                        m1 = m1/100.0
-                                    if self.exDic[name2][1]:
-                                        m2 = m2/100.0
-                                    
-                                    self.irc.sendmsg(message.channel, '1 %s = %.4f %s' % (name1, m1/m2, name2))
-                                    continue
-                                else :
-                                    self.irc.sendmsg(message.channel, 'Not found')
-                                    continue
-                            self.irc.sendmsg(message.channel, 'ex)!환율 USD [(-> 한국)|50]')
-                            continue
                     parse = re.match(r'!(\S+)\s+(.*)$',message.msg)
                     if parse:
                         command = parse.group(1)
                         contents = parse.group(2)
+                        if command == '환율':
+                            smsg = Exmsg(contents,self.exDic,self.nameDic,self.exList)
+                            self.irc.sendmsg(message.channel, smsg)
+                            continue
+                    
                         if command == '점수' or command == 'score':
                             sen = Sent(contents)
                             if sen == '':
@@ -136,6 +77,7 @@ class Bot():
                             else:
                                 self.irc.sendmsg(message.channel, "'%s'은(는) %d점" % (contents, scr))
                                 continue
+                            
                     parse = re.match(r'!치킨\s+(\d+)\s*(\S*)',message.msg)
                     if parse:
                         num = int(parse.group(1))
@@ -170,6 +112,7 @@ class Bot():
                         else:
                             self.irc.sendmsg(message.channel, '[fib] %d' % fib[num])
                         continue
+                    
                     parse = re.match(r'!백준\s+(\d+)$',message.msg)
                     if parse:
                         num = int(parse.group(1))
@@ -182,39 +125,60 @@ class Bot():
                         elif title == False:
                             self.irc.sendmsg(message.channel, 'Timeout')
                         continue
+                    
                     if message.msg == '!환율':
                         self.irc.sendmsg(message.channel, 'ex)!환율 USD [(-> 한국)|50]')
                         continue
+                    
                     if message.msg == '!코포':
                         contestlist = CFAPI()
+                        contestlist = sorted(contestlist, key=lambda con: con[5])
                         if contestlist:
                             for i  in range(min(len(contestlist),2)):
                                 con = contestlist[i]
-                                self.irc.sendmsg(message.channel, '[%s] %s | %s | %s %s' % (con[0],con[1], con[2],con[3],con[4]))
+                                self.irc.sendmsg(message.channel, '[%s] %s | %s | %s | %s' % (con[0],con[1], con[2],con[3],con[4]))
                             continue
                         else:
                             self.irc.sendmsg(message.channel, 'Timeout')
                             continue
+                        
                     if message.msg == '부스터 옵줘':
                         self.irc.sendmode(message.channel,'+o ' + message.sender)
                         continue
+                    
                     if message.msg.find('부스터') != -1:
                         self.irc.sendmsg(message.channel, '크앙')
                         continue
+                    
                     if message.msg.find('치킨') != -1 and message.msg.find('치킨') < message.msg.find('먹') < message.msg.find('싶'):
                         self.irc.sendmsg(message.channel, '치킨!')
                         continue
-    def loopCrawl(self):
+                    
+
+    def loopExCrawl(self):
         while True:
-            time.sleep(60*60)
+            time.sleep(30*60)
             self.exList = ExchangeCrawl()
             self.nameDic = MakeNameDic(self.exList)
-            self.nameList = list(self.nameDic.keys())
             self.exDic = MakeExDic(self.exList)
             
+    def loopCFCrawl(self):
+        RCList = InitCFChangeList('PJH0123')
+        while True:
+            time.sleep(10*60)
+            newList = CFRatingChange('PJH0123',RCList)
+            for i in range(len(newList)-2,len(newList)):
+                ch = newList[i]
+                RCList.append(ch['contestId'])
+                score = ch['newRating']-ch['oldRating']
+                score = chr(3) + ('12+' if score >= 0 else '07-') + str(abs(score)) + chr(3)
+                self.irc.sendmsg('#Jhuni', "[codeforeces] %s %d -> %d (%s) #%d at contest%d" % ('PJH0123', ch['oldRating'], ch['newRating'], score, ch['rank'], ch['contestId']))
+
     def start(self):
-        threading.Thread(target = self.loopCrawl, daemon = True).start()
+        threading.Thread(target = self.loopExCrawl, daemon = True).start()
+        threading.Thread(target = self.loopCFCrawl, daemon = True).start()
         self.run()
+        
 if __name__ == '__main__':
     bot = Bot()
     bot.start()
