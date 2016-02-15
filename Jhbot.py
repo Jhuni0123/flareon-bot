@@ -10,7 +10,7 @@ from bojcrawl import BOJCrawl
 from cfcrawl import CFAPI,InitCFChangeList,CFRatingChange
 from exchangecrawl import ExchangeCrawl, MakeNameDic, MakeExDic, Exmsg
 
-
+callNameList = ['마폭시','큐베러버','참치','브랸','브리안','브리얀']
 
 class Bot():
     irc = None
@@ -54,7 +54,7 @@ class Bot():
                         self.irc.sendmsg(message.channel, 'ㅇㅅㅇ..')
 
                 elif message.msgType == 'PRIVMSG':
-                    if (message.sender in [r'\b','C','bryan_a','cubeIover','VBChunguk_bot','gn','kcm1700-bot','치즈','Diet-bot','JW270','Bonobot']):
+                    if (message.sender in [r'\b','C','bryan_a','cubeIover','VBChunguk_bot','gn','kcm1700-bot','치즈','Diet-bot','JW270','Bonobot','B']):
                         continue
                     parse = re.match(r'!(\S+)\s+(.*)$',message.msg)
                     if parse:
@@ -146,12 +146,20 @@ class Bot():
                         self.irc.sendmode(message.channel,'+o ' + message.sender)
                         continue
                     
-                    if message.msg.find('부스터') != -1:
-                        self.irc.sendmsg(message.channel, '크앙')
+                    isCalled = False
+                    for x in callNameList:
+                        if message.msg.find(x) != -1:
+                            isCalled = True
+                            break
+                    if isCalled:
                         continue
                     
                     if message.msg.find('치킨') != -1 and message.msg.find('치킨') < message.msg.find('먹') < message.msg.find('싶'):
                         self.irc.sendmsg(message.channel, '치킨!')
+                        continue
+                    
+                    if message.msg.find('부스터') != -1:
+                        self.irc.sendmsg(message.channel, '크앙')
                         continue
                     
 
@@ -167,7 +175,7 @@ class Bot():
         while True:
             time.sleep(10*60)
             newList = CFRatingChange('PJH0123',RCList)
-            for i in range(len(newList)-2,len(newList)):
+            for i in range(max(len(newList)-2,0),len(newList)):
                 ch = newList[i]
                 RCList.append(ch['contestId'])
                 score = ch['newRating']-ch['oldRating']
