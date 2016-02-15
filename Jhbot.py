@@ -61,7 +61,7 @@ class Bot():
                         command = parse.group(1)
                         contents = parse.group(2)
                         if command == '환율':
-                            smsg = Exmsg(contents,self.exDic,self.nameDic,self.exList)
+                            smsg = Exmsg(contents,self.exDic,self.nameDic)
                             self.irc.sendmsg(message.channel, smsg)
                             continue
                     
