@@ -54,7 +54,7 @@ class Bot():
                         self.irc.sendmsg(message.channel, 'ㅇㅅㅇ..')
 
                 elif message.msgType == 'PRIVMSG':
-                    if (message.sender in [r'\b','C','bryan_a','cubeIover','VBChunguk_bot','gn','kcm1700-bot','치즈','Diet-bot','JW270','Bonobot','B']):
+                    if (message.sender in [r'\b','C','bryan_a','cube1over','VBChunguk_bot','gn','kcm1700-bot','치즈','Diet-bot','JW270','Bonobot','B','Delphox','Draco']):
                         continue
                     parse = re.match(r'!(\S+)\s+(.*)$',message.msg)
                     if parse:
@@ -127,7 +127,7 @@ class Bot():
                         continue
                     
                     if message.msg == '!환율':
-                        self.irc.sendmsg(message.channel, 'ex)!환율 USD [(-> 한국)|50]')
+                        self.irc.sendmsg(message.channel, 'ex)!환율 [숫자] <통화명> [-> <통화명>]')
                         continue
                     
                     if message.msg == '!코포':
