@@ -132,8 +132,8 @@ class Bot():
                     
                     if message.msg == '!코포':
                         contestlist = CFAPI()
-                        contestlist = sorted(contestlist, key=lambda con: con[5])
                         if contestlist:
+                            contestlist = sorted(contestlist, key=lambda con: con[5])
                             for i  in range(min(len(contestlist),2)):
                                 con = contestlist[i]
                                 self.irc.sendmsg(message.channel, '[%s] %s | %s | %s | %s' % (con[0],con[1], con[2],con[3],con[4]))
@@ -141,6 +141,7 @@ class Bot():
                         else:
                             self.irc.sendmsg(message.channel, 'Timeout')
                             continue
+                        
                         
                     if message.msg == '부스터 옵줘':
                         self.irc.sendmode(message.channel,'+o ' + message.sender)
@@ -175,12 +176,13 @@ class Bot():
         while True:
             time.sleep(10*60)
             newList = CFRatingChange('PJH0123',RCList)
-            for i in range(max(len(newList)-2,0),len(newList)):
-                ch = newList[i]
-                RCList.append(ch['contestId'])
-                score = ch['newRating']-ch['oldRating']
-                score = chr(3) + ('12+' if score >= 0 else '07-') + str(abs(score)) + chr(3)
-                self.irc.sendmsg('#Jhuni', "[codeforeces] %s %d -> %d (%s) #%d at contest%d" % ('PJH0123', ch['oldRating'], ch['newRating'], score, ch['rank'], ch['contestId']))
+            if newList:
+                for i in range(max(len(newList)-2,0),len(newList)):
+                    ch = newList[i]
+                    RCList.append(ch['contestId'])
+                    score = ch['newRating']-ch['oldRating']
+                    score = chr(3) + ('12+' if score >= 0 else '07-') + str(abs(score)) + chr(3)
+                    self.irc.sendmsg('#Jhuni', "[codeforeces] %s %d -> %d (%s) #%d at contest%d" % ('PJH0123', ch['oldRating'], ch['newRating'], score, ch['rank'], ch['contestId']))
 
     def start(self):
         threading.Thread(target = self.loopExCrawl, daemon = True).start()
