@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import re, time
 
 
-def CFAPI():
+def CFContestList():
     wdays = ['월','화','수','목','금','토','일']
     try:
         plainCode = requests.get('http://codeforces.com/api/contest.list',timeout = 5)
@@ -49,6 +49,27 @@ def CFAPI():
     #print(conList)
     return conList
 
+def CFUserInfo(handle):
+    try:
+        plainCode = requests.get("https://codeforces.com/api/user.info?handles=" + handle,timeout = 5)
+    except:
+        return "Timeout"
+    js = json.loads(plainCode.text)
+    if js.get('status') == 'OK':
+        result = js.get('result')[0]
+    else:
+        return js.get('comment')
+    handle = result.get('handle')
+    rank = result.get('rank')
+    if rank == None:
+        rank = ''
+    rating = result.get('rating')
+    if rating == None:
+        rating = ''
+    else:
+        rating = str(rating)
+    return '[Codeforces] ' + handle + ' : ' + rank + ' - ' + rating
+
 def CFRatingChange(handle,preList):
     url = 'http://codeforces.com/api/user.rating?handle='+handle
     try:
@@ -82,6 +103,3 @@ def InitCFChangeList(handle):
         return List
     else:
         return False
-#CFAPI()
-
-#InitCFChangeList('PJH0123')

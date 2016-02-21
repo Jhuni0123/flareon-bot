@@ -7,10 +7,10 @@ from score import Sent, Score
 from chib import fib, Chib, EE, Bi, Mkbi, Mkd
 import re, threading, time
 from bojcrawl import BOJCrawl
-from cfcrawl import CFAPI,InitCFChangeList,CFRatingChange
+from cfcrawl import CFContestList,CFUserInfo,InitCFChangeList,CFRatingChange
 from exchangecrawl import ExchangeCrawl, MakeNameDic, MakeExDic, Exmsg
 
-callNameList = ['마폭시','큐베러버','참치','브랸','브리안','브리얀']
+callNameList = ['마폭시','큐베러버','참치','브랸','브리안','브리얀','젠카이노']
 
 class Bot():
     irc = None
@@ -77,7 +77,12 @@ class Bot():
                             else:
                                 self.irc.sendmsg(message.channel, "'%s'은(는) %d점" % (contents, scr))
                                 continue
-                            
+
+                        if command == '코포':
+                            smsg = CFUserInfo(contents)
+                            self.irc.sendmsg(message.channel, smsg)
+                            continue
+                        
                     parse = re.match(r'!치킨\s+(\d+)\s*(\S*)',message.msg)
                     if parse:
                         num = int(parse.group(1))
@@ -131,7 +136,7 @@ class Bot():
                         continue
                     
                     if message.msg == '!코포':
-                        contestlist = CFAPI()
+                        contestlist = CFContestList()
                         if contestlist:
                             contestlist = sorted(contestlist, key=lambda con: con[5])
                             for i  in range(min(len(contestlist),2)):
