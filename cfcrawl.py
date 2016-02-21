@@ -60,14 +60,12 @@ def CFUserInfo(handle):
     else:
         return js.get('comment')
     handle = result.get('handle')
-    rank = result.get('rank')
-    if rank == None:
-        rank = ''
+    rank = result.get('rank','None')
     rating = result.get('rating')
-    if rating == None:
-        rating = ''
-    else:
+    if rating :
         rating = str(rating)
+    else:
+        rating = 'None'
     return '[Codeforces] ' + handle + ' : ' + rank + ' - ' + rating
 
 def CFRatingChange(handle,preList):
