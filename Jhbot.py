@@ -139,7 +139,7 @@ class Bot():
                         contestlist = CFContestList()
                         if contestlist:
                             contestlist = sorted(contestlist, key=lambda con: con[5])
-                            for i  in range(min(len(contestlist),2)):
+                            for i  in range(min(len(contestlist),2 if message.channel != 'Jhuni' else len(contestlist))):
                                 con = contestlist[i]
                                 self.irc.sendmsg(message.channel, '[%s] %s | %s | %s | %s' % (con[0],con[1], con[2],con[3],con[4]))
                             continue
