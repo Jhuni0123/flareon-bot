@@ -12,4 +12,6 @@ Features
 
 - Codeforces contest list ( !코포 )
 
+- Codeforces profile ( !코포 <handle> )
+
 - BOJ link ( !백준 <문제번호> )
