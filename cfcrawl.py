@@ -34,7 +34,7 @@ def CFContestList():
             relsec = cont.get('relativeTimeSeconds')
             if relsec:
                 relsec = round(relsec)
-                if 0<relsec<duratoinsec:
+                if 0<relsec<durationsec:
                     remainsec = durationsec - relsec
                 elif relsec < 0:
                     remainsec = -relsec
