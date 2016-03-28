@@ -54,7 +54,7 @@ class Bot():
                         self.irc.sendmsg(message.channel, 'ㅇㅅㅇ..')
 
                 elif message.msgType == 'PRIVMSG':
-                    if (message.sender in [r'\b','C','bryan_a','cube1over','VBChunguk_bot','gn','kcm1700-bot','치즈','Diet-bot','JW270','Bonobot','B','Delphox','Draco']):
+                    if (message.sender in [r'\b','C','bryan_a','cube1over','VBChunguk_bot','gn','kcm1700-bot','치즈','Diet-bot','JW270','Bonobot','B','Delphox','Draco','﻿','JJing_e','메구밍']):
                         continue
                     parse = re.match(r'!(\S+)\s+(.*)$',message.msg)
                     if parse:
@@ -100,7 +100,7 @@ class Bot():
                             else:
                                 self.irc.sendmsg(message.channel, '%d명에게는 %d마리의 치킨이 적절합니다' % (num, Chib(int(num))))
                             if num == 12117:
-                                self.irc.sendmsg(message.channel, 'gs12117에게는 0.5마리의 치킨이면 충분합니다')
+                                self.irc.sendmsg(message.channel, 'gs12117에게는 0.3마리의 치킨이면 충분합니다')
                             if EE(num):
                                 self.irc.sendmsg(message.channel, '%d명에게는 %d마리의 치킨이 적절합니다' % (num, Chib(int(num))))
                             if Bi(num):

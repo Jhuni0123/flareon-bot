@@ -24,8 +24,8 @@ class IRCMessage():
                 self.sender = parse.group(1)
                 self.channel = parse.group(3)
                 self.msg = parse.group(4)
-                if self.sender == 'B':
-                    parse = re.match('<.(\S+)> (.*)$', self.msg)
+                if self.sender == '﻿':
+                    parse = re.match('^<(\S+)> (.*)$', self.msg)
                     if parse:
                         self.sender = parse.group(1)
                         self.msg = parse.group(2)
