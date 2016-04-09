@@ -164,8 +164,10 @@ class Bot():
                         self.irc.sendmsg(message.channel, '치킨!')
                         continue
                     
-                    if message.msg.find('부스터') != -1:
-                        self.irc.sendmsg(message.channel, '크앙')
+                    parse = re.match(r'부스터(어*)', message.msg)
+                    if parse:
+                        cry = len(parse.group(1))
+                        self.irc.sendmsg(message.channel, '크' + '아'*cry + '앙')
                         continue
                     
 
