@@ -1,6 +1,7 @@
 Jhuni's irc bot
+==
 
-Features
+##Features
 
 - exchange rate ( !환율 [숫자] <통화명> [-> <통화명>] )
 
@@ -12,6 +13,6 @@ Features
 
 - Codeforces contest list ( !코포 )
 
-- Codeforces profile ( !코포 <handle> )
+- Codeforces profile ( !코포 \<handle> )
 
 - BOJ link ( !백준 <문제번호> )
