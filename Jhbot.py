@@ -167,7 +167,7 @@ class Bot():
                     parse = re.search(r'부스터(어*)', message.msg)
                     if parse:
                         cry = len(parse.group(1))
-                        self.irc.sendmsg(message.channel, '크' + ('아'*cry if cry < 10 else '아*%d' % cry + '앙')
+                        self.irc.sendmsg(message.channel, '크' + ('아'*cry if cry < 10 else '아*%d' % cry) + '앙')
                         continue
                     
 
