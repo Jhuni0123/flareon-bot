@@ -11,7 +11,7 @@ from cfcrawl import CFContestList,CFUserInfo,InitCFChangeList,CFRatingChange
 from exchangecrawl import ExchangeCrawl, MakeNameDic, MakeExDic, Exmsg
 
 callNameList = ['마폭시','큐베러버','참치','브랸','브리안','브리얀','젠카이노']
-
+botNameList = [r'\b','C','bryan_a','cube1over','VBChunguk_bot','gn','kcm1700-bot','치즈','Diet-bot','JW270','Bonobot','B','Delphox','Draco','﻿','JJing_e','메구밍','시리우스']
 class Bot():
     irc = None
     msgQueue = Queue()
@@ -54,7 +54,7 @@ class Bot():
                         self.irc.sendmsg(message.channel, 'ㅇㅅㅇ..')
 
                 elif message.msgType == 'PRIVMSG':
-                    if (message.sender in [r'\b','C','bryan_a','cube1over','VBChunguk_bot','gn','kcm1700-bot','치즈','Diet-bot','JW270','Bonobot','B','Delphox','Draco','﻿','JJing_e','메구밍']):
+                    if (message.sender in botNameList):
                         continue
                     parse = re.match(r'!(\S+)\s+(.*)$',message.msg)
                     if parse:
