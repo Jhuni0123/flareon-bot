@@ -8,7 +8,7 @@ from chib import fib, Chib, EE, Bi, Mkbi, Mkd
 import re, threading, time
 from bojcrawl import BOJCrawl
 from cfcrawl import CFContestList,CFUserInfo,InitCFChangeList,CFRatingChange
-from exchangecrawl import ExchangeCrawl, MakeNameDic, MakeExDic, Exmsg
+fMrom exchangecrawl import ExchangeCrawl, MakeNameDic, UpdateExDic, Exmsg
 
 callNameList = ['마폭시','큐베러버','참치','브랸','브리안','브리얀','젠카이노']
 
@@ -26,7 +26,7 @@ class Bot():
         self.irc.start()
         self.exList = ExchangeCrawl()
         self.nameDic = MakeNameDic(self.exList)
-        self.exDic = MakeExDic(self.exList)
+        self.exDic = UpdateExDic(self.exList, self.exDic)
         
     def run(self):
         print('RUNNING')
@@ -176,7 +176,7 @@ class Bot():
             time.sleep(30*60)
             self.exList = ExchangeCrawl()
             self.nameDic = MakeNameDic(self.exList)
-            self.exDic = MakeExDic(self.exList)
+            self.exDic = UpdateExDic(self.exList, self.exDic)
             
     def loopCFCrawl(self):
         RCList = InitCFChangeList('PJH0123')

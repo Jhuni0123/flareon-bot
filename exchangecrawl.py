@@ -24,8 +24,7 @@ def MakeNameDic(List):
             dic[simbol]=simbol
     return dic
 
-def MakeExDic(List):
-    dic = {}
+def UpdateExDic(List,dic):
     dic['info'] = List[0][1]
     for i in range(1,len(List)):
         name = List[i][0]
@@ -42,7 +41,7 @@ def ExchangeCrawl():
     try:
         sourceHtml = requests.get("http://info.finance.naver.com/marketindex/?tabSel=exchange#tab_section",timeout=5)
     except:
-        return False
+        return []
     sourceText = sourceHtml.text
     soup = BeautifulSoup(sourceText, 'html.parser')
     info = soup.select('div.exchange_info')[0].text.strip('\n ').replace('\n','/')
@@ -50,7 +49,7 @@ def ExchangeCrawl():
     try:
         sourceHtml = requests.get("http://info.finance.naver.com/marketindex/exchangeList.nhn",timeout=5)
     except:
-        return False
+        return []
     sourceText = sourceHtml.text
     soup = BeautifulSoup(sourceText, 'html.parser')
     table = soup.select('tbody')
