@@ -16,9 +16,9 @@ class Bot():
     irc = None
     msgQueue = Queue()
     channel_list = []
-    exList = None
-    nameDic = None
-    exDic = None
+    exList = []
+    nameDic = {}
+    exDic = {}
     def __init__(self):
         from ircconnector import IRCConnector
         self.irc = IRCConnector(self.msgQueue)
