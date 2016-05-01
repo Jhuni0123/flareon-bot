@@ -8,11 +8,11 @@ def CFContestList():
     try:
         plainCode = requests.get('http://codeforces.com/api/contest.list',timeout = 5)
         now = round(time.time())
+        Dic = json.loads(plainCode.text)
+
     except:
         return False
-    plainText = plainCode.text
-    Dic = json.loads(plainText)
-    if Dic.get('status')=='OK':
+        if Dic.get('status')=='OK':
         List = Dic.get('result')
     else:
         return False
@@ -52,9 +52,9 @@ def CFContestList():
 def CFUserInfo(handle):
     try:
         plainCode = requests.get("https://codeforces.com/api/user.info?handles=" + handle,timeout = 5)
+        js = json.loads(plainCode.text)
     except:
         return "Timeout"
-    js = json.loads(plainCode.text)
     if js.get('status') == 'OK':
         result = js.get('result')[0]
     else:
@@ -72,9 +72,9 @@ def CFRatingChange(handle,preList):
     url = 'http://codeforces.com/api/user.rating?handle='+handle
     try:
         plainCode = requests.get(url)
+        rjson = json.loads(plainCode.text)
     except:
         return False
-    rjson = json.loads(plainCode.text)
     if rjson['status']=='OK':
         newChangeList = []
         result = rjson.get('result')
@@ -90,9 +90,9 @@ def InitCFChangeList(handle):
     url = 'http://codeforces.com/api/user.rating?handle='+handle
     try:
         plainCode = requests.get(url)
+        rjson = json.loads(plainCode.text)
     except:
         return False
-    rjson = json.loads(plainCode.text)
     if rjson['status'] == 'OK':
         result = rjson.get('result')
         List = []

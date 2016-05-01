@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from ircmessage import IRCMessage
-from setting import botnick
+from setting import botnick,masterNick
 from queue import Queue
 from score import Sent, Score
 from chib import fib, Chib, EE, Bi, Mkbi, Mkd
@@ -44,7 +44,7 @@ class Bot():
                     self.irc.joinchan(message.channel)
 
                 elif message.msgType == 'NOTICE':
-                    if message.sender == 'Jhuni' and message.channel == botnick:
+                    if message.sender == masterNick and message.channel == botnick:
                         self.irc.semdmsg('#snucse16',message.msg)
                         continue
                 elif message.msgType == 'MODE':
