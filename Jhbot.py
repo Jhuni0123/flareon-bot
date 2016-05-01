@@ -10,7 +10,7 @@ from bojcrawl import BOJCrawl
 from cfcrawl import CFContestList,CFUserInfo,InitCFChangeList,CFRatingChange
 from exchangecrawl import ExchangeCrawl, MakeNameDic, UpdateExDic, Exmsg
 
-callNameList = ['마폭시','큐베러버','참치','브랸','브리안','브리얀','젠카이노']
+callNameList = ['마폭시','큐베러버','참치','브랸','브리안','브리얀','젠카이노','!폭렬']
 botNameList = [r'\b','C','bryan_a','cube1over','VBChunguk_bot','gn','kcm1700-bot','치즈','Diet-bot','JW270','Bonobot','B','Delphox','Draco','﻿','JJing_e','메구밍','시리우스']
 class Bot():
     irc = None
@@ -41,6 +41,7 @@ class Bot():
                 message = packet['content']
                 #print(message)
                 if message.msgType == 'INVITE':
+                    print("%s invites to %s" % (message.sender, message.channel))
                     self.irc.joinchan(message.channel)
 
                 elif message.msgType == 'NOTICE':
