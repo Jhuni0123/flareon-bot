@@ -12,7 +12,7 @@ def CFContestList():
 
     except:
         return False
-        if Dic.get('status')=='OK':
+    if Dic.get('status')=='OK':
         List = Dic.get('result')
     else:
         return False
