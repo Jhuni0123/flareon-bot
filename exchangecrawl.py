@@ -7,6 +7,7 @@ def MakeNameDic(List):
     dic = {}
     dic['원'] = 'KRW'
     dic['엔'] = 'JPY'
+    dic['엔화'] = 'JPY'
     dic['달러'] = 'USD'
     dic['파운드'] = 'GBP'
     dic['위안'] = 'CNY'
@@ -84,7 +85,7 @@ def WriteTable(List):
 
 def Exmsg(contents,exDic,nameDic):
     contents = contents.strip(' \t\n\r')
-    parse = re.match(r'(\d*)\s*(\S+)(?:\s*->\s*(\S+)\s*)?$',contents)
+    parse = re.match(r'(\d*)\s*([^\s\d>-]+)(?:\s*->\s*([^\s\d]+)\s*)?$',contents)
     if parse:
         num1 = parse.group(1)
         name1 = parse.group(2)
