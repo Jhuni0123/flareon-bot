@@ -138,7 +138,10 @@ class Bot():
                     
                     if message.msg == '!코포':
                         contestlist = CFContestList()
-                        if contestlist:
+                        if contestlist != False:
+                            if len(contestlist) == 0:
+                                self.irc.sendmsg(message.channel, 'No contest yet')
+                                continue
                             contestlist = sorted(contestlist, key=lambda con: con[5])
                             for i  in range(min(len(contestlist),2 if message.channel != '#Jhuni' else len(contestlist))):
                                 con = contestlist[i]
