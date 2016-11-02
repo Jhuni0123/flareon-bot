@@ -85,7 +85,7 @@ def WriteTable(List):
 
 def Exmsg(contents,exDic,nameDic):
     contents = contents.strip(' \t\n\r')
-    parse = re.match(r'(\d*)\s*([^\s\d>-]+)(?:\s*->\s*([^\s\d]+)\s*)?$',contents)
+    parse = re.match(r'(\d*(?:(?:\.\d+)?|(?:e(?:\+|-)?\d+)?))\s*([^\s\d>-]+)(?:\s*->\s*([^\s\d]+)\s*)?$',contents)
     if parse:
         num1 = parse.group(1)
         name1 = parse.group(2)
@@ -111,7 +111,7 @@ def Exmsg(contents,exDic,nameDic):
                 else:
                     num1 = 1
             else:
-                num1 = int(num1)
+                num1 = float(num1)
                                     
             m1=exDic[name1][0]
             m2=exDic[name2][0] 
@@ -120,7 +120,7 @@ def Exmsg(contents,exDic,nameDic):
             if exDic[name2][1]:
                 m2 = m2/100.0
                                     
-            return '%d %s = %.2f %s' % (num1,name1,num1*m1/m2,name2)
+            return '%g %s = %.2f %s' % (num1,name1,num1*m1/m2,name2)
         
         else:
             return 'Not Found'
