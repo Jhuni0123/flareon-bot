@@ -58,6 +58,7 @@ class IRCConnector(threading.Thread):
             try:
                 ircmsg = ircmsg.decode().strip('\n\r')
             except Exception as e:
+                print(ircmsg)
                 print(e)
             else:
                 #print(ircmsg)
@@ -68,3 +69,5 @@ class IRCConnector(threading.Thread):
                         self.ping()
                     else:
                         self.msgQueue.put({'type': 'irc', 'content': message})
+                else :
+                    print(message)
