@@ -178,7 +178,7 @@ class Bot():
 
     def loopExCrawl(self):
         while True:
-            time.sleep(30*60)
+            time.sleep(5*60)
             self.exList = ExchangeCrawl()
             self.nameDic = MakeNameDic(self.exList)
             self.exDic = UpdateExDic(self.exList, self.exDic)
@@ -186,7 +186,7 @@ class Bot():
     def loopCFCrawl(self):
         RCList = InitCFChangeList('PJH0123')
         while True:
-            time.sleep(10*60)
+            time.sleep(5*60)
             newList = CFRatingChange('PJH0123',RCList)
             if newList:
                 for i in range(max(len(newList)-2,0),len(newList)):
