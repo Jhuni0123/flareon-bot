@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from ircconnector import IRCConnector
 from ircmessage import IRCMessage
-from setting import botnick,masterNick
-from queue import Queue
+from config import *
 import re
 import threading
 import time
@@ -13,16 +13,13 @@ from score import Sent, Score
 from exchangecrawl import ExchangeCrawl, MakeNameDic, UpdateExDic, Exmsg
 
 class Bot():
-    irc = None
-    msgQueue = Queue()
     exList = []
     nameDic = {}
     exDic = {}
-    def __init__(self):
-        from ircconnector import IRCConnector
-        self.irc = IRCConnector(self.msgQueue)
-        self.irc.setDaemon(True)
-        self.irc.start()
+    def __init__(self, server, port):
+        self.irc = IRCConnector(server, port)
+        self.irc.init_user(botname)
+        self.irc.set_nick(botnick)
         self.exList = ExchangeCrawl()
         self.nameDic = MakeNameDic(self.exList)
         self.exDic = UpdateExDic(self.exList, self.exDic)
@@ -30,97 +27,97 @@ class Bot():
         self.cf = CodeforcesCrawler()
         self.fib = FibCalculator()
 
+        self.irc.join_chan('#jhuni-bot-test')
+
     def run(self):
-        print('RUNNING')
         while True:
-            packet = self.msgQueue.get()
-            if packet['type'] == 'irc':
-                message = packet['content']
-                if message.msgType == 'INVITE':
-                    print("%s invites to %s" % (message.sender, message.channel))
-                    self.irc.joinchan(message.channel)
+            message = self.irc.get_next_msg()
+            print(message)
+            if message['command'] == 'INVITE':
+                print("%s invites to %s" % (message['sender'], message['channel']))
+                self.irc.joinchan(message['channel'])
 
-                elif message.msgType == 'MODE':
-                    if message.msg == '+o ' + botnick:
-                        self.irc.sendmsg(message.channel, '>ㅅ<')
-                    elif message.msg == '-o ' + botnick:
-                        self.irc.sendmsg(message.channel, 'ㅇㅅㅇ..')
+            elif message['command'] == 'MODE':
+                if message['mode'] == '+o' and message['users'][0] == botnick:
+                    self.irc.send_msg(message['target'], '>ㅅ<')
+                elif message['mode'] == '-o' and message['users'][0] == botnick:
+                    self.irc.send_msg(message['target'], 'ㅇㅅㅇ..')
 
-                elif message.msgType == 'PRIVMSG':
-                    parse = re.match(r'!(\S+)\s+(.*)$',message.msg)
-                    if parse:
-                        command = parse.group(1)
-                        contents = parse.group(2)
-                        if command == '환율':
-                            smsg = Exmsg(contents,self.exDic,self.nameDic)
-                            self.irc.sendmsg(message.channel, smsg)
+            elif message['command'] == 'PRIVMSG':
+                parse = re.match(r'!(\S+)\s+(.*)$',message['text'])
+                if parse:
+                    command = parse.group(1)
+                    contents = parse.group(2)
+                    if command == '환율':
+                        smsg = Exmsg(contents,self.exDic,self.nameDic)
+                        self.irc.send_msg(message['target'], smsg)
+                        continue
+
+                    if command == '점수' or command == 'score':
+                        sen = Sent(contents)
+                        if sen == '':
+                            self.irc.send_msg(message['target'], "적절하지 않은 영단어입니다")
+                            continue
+                        scr = Score(sen)
+                        if scr == 100:
+                            self.irc.send_msg(message['target'], "'%s'은(는) %d점짜리 입니다" % (contents,scr))
+                            continue
+                        else:
+                            self.irc.send_msg(message['target'], "'%s'은(는) %d점" % (contents, scr))
                             continue
 
-                        if command == '점수' or command == 'score':
-                            sen = Sent(contents)
-                            if sen == '':
-                                self.irc.sendmsg(message.channel, "적절하지 않은 영단어입니다")
-                                continue
-                            scr = Score(sen)
-                            if scr == 100:
-                                self.irc.sendmsg(message.channel, "'%s'은(는) %d점짜리 입니다" % (contents,scr))
-                                continue
-                            else:
-                                self.irc.sendmsg(message.channel, "'%s'은(는) %d점" % (contents, scr))
-                                continue
-
-                        if command == '코포':
-                            msgs = self.cf.command(contents)
-                            for msg in msgs:
-                                self.irc.sendmsg(message.channel, msg)
-                            continue
-
-                    if message.msg.startswith('!치킨 '):
-                        msgs = self.fib.chicken_command(message.msg[4:])
+                    if command == '코포':
+                        msgs = self.cf.command(contents)
                         for msg in msgs:
-                            self.irc.sendmsg(message.channel, msg)
+                            self.irc.send_msg(message['target'], msg)
                         continue
 
-                    if message.msg.startswith('!fib '):
-                        msgs = self.fib.fib_command(message.msg[5:])
-                        for msg in msgs:
-                           self.irc.sendmsg(message.channel, msg)
-                        continue
+                if message['text'].startswith('!치킨 '):
+                    msgs = self.fib.chicken_command(message['text'][4:])
+                    for msg in msgs:
+                        self.irc.send_msg(message['target'], msg)
+                    continue
 
-                    parse = re.match(r'!백준\s+(\d+)$',message.msg)
-                    if parse:
-                        res = self.boj.command(parse.group(1))
-                        for msg in res:
-                            self.irc.sendmsg(message.channel, msg)
-                        continue
+                if message['text'].startswith('!fib '):
+                    msgs = self.fib.fib_command(message['text'][5:])
+                    for msg in msgs:
+                       self.irc.send_msg(message['target'], msg)
+                    continue
 
-                    if message.msg == '!환율':
-                        self.irc.sendmsg(message.channel, 'ex)!환율 [숫자] <통화명> [-> <통화명>]')
-                        continue
+                parse = re.match(r'!백준\s+(\d+)$',message['text'])
+                if parse:
+                    res = self.boj.command(parse.group(1))
+                    for msg in res:
+                        self.irc.send_msg(message['target'], msg)
+                    continue
 
-                    if message.msg == '!코포':
-                        msgs = self.cf.command()
-                        for msg in msgs:
-                            self.irc.sendmsg(message.channel, msg)
-                        continue
+                if message['text'] == '!환율':
+                    self.irc.send_msg(message['target'], 'ex)!환율 [숫자] <통화명> [-> <통화명>]')
+                    continue
 
-                    if message.msg == '부스터 옵줘':
-                        self.irc.sendmode(message.channel,'+o ' + message.sender)
-                        continue
+                if message['text'] == '!코포':
+                    msgs = self.cf.command()
+                    for msg in msgs:
+                        self.irc.send_msg(message['target'], msg)
+                    continue
 
-                    if message.msg.find('치킨') != -1\
-                            and message.msg.find('치킨') < message.msg.find('먹') < message.msg.find('싶'):
-                        self.irc.sendmsg(message.channel, '치킨!')
-                        continue
+                if message['text'] == '부스터 옵줘':
+                    self.irc.sendmode(message['target'],'+o ' + message['sender'])
+                    continue
 
-                    parse = re.search(r'부(우*)스터(어*)', message.msg)
-                    if parse:
-                        cry1 = len(parse.group(1))
-                        cry2 = len(parse.group(2))
-                        self.irc.sendmsg(message.channel, '크'\
-                                + ('으'*cry1 if cry1 < 10 else '으*%d' % cry1)\
-                                + ('아'*cry2 if cry2 < 10 else '아*%d' % cry2) + '앙')
-                        continue
+                if message['text'].find('치킨') != -1\
+                        and message['text'].find('치킨') < message['text'].find('먹') < message['text'].find('싶'):
+                    self.irc.send_msg(message['target'], '치킨!')
+                    continue
+
+                parse = re.search(r'부(우*)스터(어*)', message['text'])
+                if parse:
+                    cry1 = len(parse.group(1))
+                    cry2 = len(parse.group(2))
+                    self.irc.send_msg(message['target'], '크'\
+                            + ('으'*cry1 if cry1 < 10 else '으*%d' % cry1)\
+                            + ('아'*cry2 if cry2 < 10 else '아*%d' % cry2) + '앙')
+                    continue
 
     def loopExCrawl(self):
         while True:
@@ -140,7 +137,7 @@ class Bot():
                     RCList.append(ch['contestId'])
                     score = ch['newRating']-ch['oldRating']
                     score = chr(3) + ('12+' if score >= 0 else '07-') + str(abs(score)) + chr(3)
-                    self.irc.sendmsg('#Jhuni', "[codeforeces] %s %d -> %d (%s) #%d at contest%d"\
+                    self.irc.send_msg('#Jhuni', "[codeforeces] %s %d -> %d (%s) #%d at contest%d"\
                             % ('PJH0123', ch['oldRating'], ch['newRating'], score, ch['rank'], ch['contestId']))
 
     def start(self):
@@ -149,5 +146,5 @@ class Bot():
         self.run()
 
 if __name__ == '__main__':
-    bot = Bot()
+    bot = Bot(server, port)
     bot.start()

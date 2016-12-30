@@ -1,5 +1,0 @@
-server = 'irc.example.org'
-port = 6661
-botnick = 'nickname'
-botname = 'name'
-masterNick = 'yourname'

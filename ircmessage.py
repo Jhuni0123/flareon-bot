@@ -1,53 +1,55 @@
 import re
 
-
-class IRCMessage():
-    msgType = None
-    sender = None
-    channel = None
-    msg = None
-    target = None
-
-    def __init__(self, origMessage):
-        parse = re.search('^(?:[:](\S+)!\S+ )?(\S+)(?: (?!:)(.+?))?(?: [:](.+))?$', origMessage)
-        if parse:
-            self.msgType = parse.group(2)
-            if self.msgType == 'INVITE':
-                self.sender = parse.group(1)
-                self.target = parse.group(3)
-                self.channel = parse.group(4)
-            elif self.msgType == 'NOTICE':
-                self.sender = parse.group(1)
-                self.channel = parse.group(3)
-                self.msg = parse.group(4)
-            elif self.msgType == 'PRIVMSG':
-                self.sender = parse.group(1)
-                self.channel = parse.group(3)
-                self.msg = parse.group(4)
-                if self.sender == '﻿':
-                    parse = re.match('^<(.+)> (.*)$', self.msg)
-                    if parse:
-                        self.sender = parse.group(1)
-                        self.msg = parse.group(2)
-            elif self.msgType == 'MODE':
-                self.sender = parse.group(1)
-                self.channel = parse.group(3).split(' ', maxsplit=1)[0]
-                self.msg = parse.group(3).split(' ', maxsplit=1)[1]
-            elif self.msgType == 'JOIN':
-                self.sender = parse.group(1)
-                self.channel = parse.group(4)
-            elif self.msgType == 'PING':
-                self.sender = parse.group(4)
+class IRCMessage(dict):
+    def __init__(self, msg):
+        msg = msg.strip()
+        self['command'] = None
+        self['sender'] = None
+        match = re.search('^(?::(\S+) )?([a-zA-Z]+|\d\d\d)((?: [^ :\r\n\0][^ \r\n\0]*)*)(?: :(.*))?$', msg)
+        if match:
+            sender, command, params, text = match.groups()
+            params = params.split()
+            self['sender'] = sender
+            if sender:
+                match = re.search('^([^!@]+)(?:(?:!(\S+))?(@\S+))?$', sender)
+                if match:
+                    self['sender'] = match.group(1)
+                    if match.group(3):
+                        self['sender-user'] = (match.group(2) if match.group(2) else match.group(1)) + match.group(3)
+            self['command'] = command
+            if command == 'PING':
+                self['server'] = text.strip()
+            elif command in ['NOTICE', 'PRIVMSG', 'TOPIC']:
+                self['target'] = params[0]
+                self['text'] = text
+            elif command == 'INVITE':
+                self['target'] = params[1]
+            elif command == 'MODE':
+                self['target'] = params[0]
+                self['mode'] = params[1]
+                if len(params) > 2:
+                    self['users'] = params[2:]
+            elif command == 'ERROR':
+                self['text'] = text
+            elif command == 'NICK':
+                self['nick'] = text
+            elif command == '353':
+                self['target'] = params[0]
+                self['channel_option'] = params[1]
+                self['channel'] = params[2]
+                self['users'] = text.split()
+            elif command == '366':
+                self['target'] = params[0]
+                self['channel'] = params[1]
+                self['text'] = text
+            elif command.isnumeric():
+                self['target'] = params[0]
+                params = params[1:]
+                if text != None:
+                    params.append(text)
+                self['text'] = ' '.join(params)
         else:
-            pass
+            self['text'] = msg
+        print(msg)
+        print(self)
 
-    def __repr__(self):
-        msg = self.msg
-        return '<IRCMessage : %s %s %s %s %s>' \
-               % (self.msgType, self.sender, self.channel, msg, self.target)
-
-    def isValid(self):
-        if self.msgType == None:
-            return False
-        else:
-            return True

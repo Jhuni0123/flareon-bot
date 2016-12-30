@@ -1,0 +1,5 @@
+server = 'irc.example.com'
+port = 6661
+botname = 'test-bot'
+botnick = 'test-bot'
+

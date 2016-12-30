@@ -3,5 +3,5 @@ venv/
 *.pyc
 *.log
 
-setting.py
+config.py
 db/

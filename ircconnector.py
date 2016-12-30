@@ -1,73 +1,68 @@
-# -*- coding: utf-8 -*-
-
-import socket
-import ssl
+import socket, ssl
 import threading
-from setting import server, port, botname, botnick
-from ircmessage import IRCMessage
 from queue import Queue
+from ircmessage import IRCMessage
 
-
-class IRCConnector(threading.Thread):
-    ircsock = None
-    msgQueue = None
-
-    def __init__(self, msgQueue):
-        threading.Thread.__init__(self)
+class IRCConnector:
+    def __init__(self, server, port):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.ircsock = ssl.wrap_socket(s)
-        self.ircsock.connect((server, port))
-        
-        self.ircsock.send(('USER ' + (botname + ' ') * 3 + ':' +
-                           botname + '\n').encode())
-        self.ircsock.send(('NICK ' + botnick + '\n').encode())
+        s.connect((server, port))
+        self._sock = ssl.wrap_socket(s)
 
-        self.msgQueue = msgQueue
-        
+        self._msg_queue = Queue()
+        _thread = threading.Thread(target = self.recv_msg, daemon = True)
+        _thread.start()
 
-    def ping(self):
-        self.ircsock.send(('PONG :pingis\n').encode())
+    def init_user(self, name):
+        self._send('USER ' + (name + ' ') * 3 + ':' + name)
 
-    def sendmsg(self, chan, msg):
-        self.ircsock.send(('PRIVMSG ' + chan + ' :' + msg + '\n').encode())
+    def set_nick(self, nick):
+        self._send('NICK ' + nick)
 
-    def sendmode(self, chan, msg):
-        self.ircsock.send(('MODE ' + chan + ' ' + msg + '\n').encode())
+    def join_chan(self, chan_name):
+        self._send('JOIN ' + chan_name)
 
-    def joinchan(self, chan):
-        self.ircsock.send(('JOIN ' + chan + '\n').encode())
+    def get_names(self, chan_name):
+        self._send('NAMES ' + chan_name)
 
-    def partchan(self, chan):
-        self.ircsock.send(('PART ' + chan + '\n').encode())
+    def send_msg(self, target, text):
+        self._send('PRIVMSG ' + target + ' :' + text)
 
-    def chanlist(self):
-        self.ircsock.send(('WHOIS ' + botnick + '\n').encode())
+    def set_topic(self, chan_name, text):
+        self._send('TOPIC ' + chan_name + ' :' + text)
 
-    def settopic(self, chan, msg):
-        self.ircsock.send(('TOPIC ' + chan + ' :' + msg + '\n').encode())
+    def part_chan(self, chan_name, text = ''):
+        self._send('PART ' + chan_name + ' ' + text)
 
-    def gettopic(self, chan):
-        self.ircsock.send(('LIST ' + chan + '\n').encode())
-        ircmsg = self.ircsock.recv(8192)
-        topic = (ircmsg.decode().split('\n')[1]).split(':')[2].strip('\n\r')
-        return topic
+    def quit(self, text):
+        self._send('QUIT ' + text)
 
-    def run(self):
+    def pong(self, server):
+        self._send('PONG ' + server)
+
+    def _send(self, text):
+        self._sock.send((text + '\n').encode())
+
+    def get_next_msg(self):
+        return self._msg_queue.get()
+
+    def recv_msg(self):
+        prefix = b''
         while True:
-            ircmsg = self.ircsock.recv(8192)
-            try:
-                ircmsg = ircmsg.decode().strip('\n\r')
-            except Exception as e:
-                print(ircmsg)
-                print(e)
-            else:
-                #print(ircmsg)
-                message = IRCMessage(ircmsg)
-                if message.isValid():
-                    #print(message)
-                    if message.msgType == 'PING':
-                        self.ping()
+            raw_bytes = self._sock.recv(1024)
+            if raw_bytes:
+                raw_bytes = prefix + raw_bytes
+                msg_list = raw_bytes.split(b'\r\n')
+                prefix = msg_list[-1]
+                msg_list.pop()
+                for msg_bytes in msg_list:
+                    msg_str = msg_bytes.decode(errors = 'ignore')
+                    msg = IRCMessage(msg_str)
+                    if msg['command'] == 'PING':
+                        self.pong(msg['server'])
                     else:
-                        self.msgQueue.put({'type': 'irc', 'content': message})
-                else :
-                    print(message)
+                        self._msg_queue.put(msg)
+            else:
+                self._sock.close()
+                print('Connection closed')
+                break
