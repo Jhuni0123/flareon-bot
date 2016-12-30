@@ -31,7 +31,7 @@ class FibCalculator:
 
     def fibonacci(self, n):
         if abs(n) > self.MAX_N:
-            return False
+            return None
         elif n < 0:
             return self.fib_minus[-n]
         else:
@@ -78,8 +78,8 @@ class FibCalculator:
             result.append('Incorret input')
         else:
             res = self.fibonacci(num)
-            if res:
-                result.append('[fib] ' + str(res))
-            else:
+            if res == None:
                 result.append('result is to big')
+            else:
+                result.append('[fib] ' + str(res))
         return result
