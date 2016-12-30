@@ -9,7 +9,7 @@ import time
 from bojcrawl import BOJCrawler
 from cfcrawl import CodeforcesCrawler, InitCFChangeList,CFRatingChange
 from fibonacci import FibCalculator
-from score import Sent, Score
+from counter import Counter
 from exchangecrawl import ExchangeCrawl, MakeNameDic, UpdateExDic, Exmsg
 
 class Bot():
@@ -26,6 +26,7 @@ class Bot():
         self.boj = BOJCrawler()
         self.cf = CodeforcesCrawler()
         self.fib = FibCalculator()
+        self.counter = Counter()
 
         self.irc.join_chan('#jhuni-bot-test')
 
@@ -54,17 +55,10 @@ class Bot():
                         continue
 
                     if command == '점수' or command == 'score':
-                        sen = Sent(contents)
-                        if sen == '':
-                            self.irc.send_msg(message['target'], "적절하지 않은 영단어입니다")
-                            continue
-                        scr = Score(sen)
-                        if scr == 100:
-                            self.irc.send_msg(message['target'], "'%s'은(는) %d점짜리 입니다" % (contents,scr))
-                            continue
-                        else:
-                            self.irc.send_msg(message['target'], "'%s'은(는) %d점" % (contents, scr))
-                            continue
+                        msgs = self.counter.command(contents)
+                        for msg in msgs:
+                            self.irc.send_msg(message['target'], msg)
+                        continue
 
                     if command == '코포':
                         msgs = self.cf.command(contents)
