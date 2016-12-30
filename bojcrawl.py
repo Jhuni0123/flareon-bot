@@ -3,13 +3,13 @@ from bs4 import BeautifulSoup
 import re
 
 class BOJCrawler:
-    address = 'https://www.acmicpc.net/'
-    short_address = 'https://boj.kr/'
+    ADDRESS = 'https://www.acmicpc.net/'
+    SHORT_ADDRESS = 'https://boj.kr/'
 
     def get_problem_title(self, num):
         try:
-            plainCode = requests.get(self.address + 'problem/' + str(num), timeout = 5)
-            soup = BeautifulSoup(plainCode.text, 'html.parser')
+            plain_code = requests.get(self.ADDRESS + 'problem/' + str(num), timeout=5)
+            soup = BeautifulSoup(plain_code.text, 'html.parser')
             title = soup.select('head > title')[0].string
             if title == 'Baekjoon Online Judge':
                 return False
@@ -21,18 +21,18 @@ class BOJCrawler:
             return False
 
     def command(self, text):
-        result = []
-        if text.isnumeric():
-            num = int(text)
-            try:
+        try:
+            result = []
+            if text.isnumeric():
+                num = int(text)
                 title = self.get_problem_title(num)
-            except requests.Timeout:
-                result.append('Timeout')
-            if title:
-                result.append('%s -> %s%d' % (title, self.short_address, num))
-            else:
-                result.append('Problem not found')
-        return result
+                if title:
+                    result.append('%s -> %s%d' % (title, self.SHORT_ADDRESS, num))
+                else:
+                    result.append('Problem not found')
+            return result
+        except requests.Timeout:
+            return ['Timeout']
 
 def BOJCrawl(url):
     try:
