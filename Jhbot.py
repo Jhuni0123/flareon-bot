@@ -6,7 +6,7 @@ from queue import Queue
 from score import Sent, Score
 from chib import fib, Chib, EE, Bi, Mkbi, Mkd
 import re, threading, time
-from bojcrawl import BOJCrawl
+from bojcrawl import BOJCrawler
 from cfcrawl import CFContestList,CFUserInfo,InitCFChangeList,CFRatingChange
 from exchangecrawl import ExchangeCrawl, MakeNameDic, UpdateExDic, Exmsg
 
@@ -27,7 +27,8 @@ class Bot():
         self.exList = ExchangeCrawl()
         self.nameDic = MakeNameDic(self.exList)
         self.exDic = UpdateExDic(self.exList, self.exDic)
-        
+        self.boj = BOJCrawler()
+
     def run(self):
         print('RUNNING')
         while True:
@@ -121,15 +122,9 @@ class Bot():
                     
                     parse = re.match(r'!백준\s+(\d+)$',message.msg)
                     if parse:
-                        num = int(parse.group(1))
-                        url = 'https://www.acmicpc.net/problem/%d' % num
-                        title = BOJCrawl(url)
-                        if title:
-                            self.irc.sendmsg(message.channel, title + ' - ' + 'https://boj.kr/%d' % num)
-                        elif title == None:
-                            self.irc.sendmsg(message.channel, 'Not found')
-                        elif title == False:
-                            self.irc.sendmsg(message.channel, 'Timeout')
+                        res = self.boj.command(parse.group(1))
+                        for msg in res:
+                            self.irc.sendmsg(message.channel, msg)
                         continue
                     
                     if message.msg == '!환율':
