@@ -11,14 +11,15 @@ class BOJCrawler:
             plain_code = requests.get(self.ADDRESS + 'problem/' + str(num), timeout=5)
             soup = BeautifulSoup(plain_code.text, 'html.parser')
             title = soup.select('head > title')[0].string
-            if title == 'Baekjoon Online Judge':
-                return False
-            else:
-                return title
         except requests.Timeout:
             raise
         except:
             return False
+        else:
+            if title == 'Baekjoon Online Judge':
+                return False
+            else:
+                return title
 
     def command(self, text):
         try:
@@ -30,9 +31,10 @@ class BOJCrawler:
                     result.append('%s -> %s%d' % (title, self.SHORT_ADDRESS, num))
                 else:
                     result.append('Problem not found')
-            return result
         except requests.Timeout:
             return ['Timeout']
+        else:
+            return result
 
 def BOJCrawl(url):
     try:

@@ -29,9 +29,10 @@ class CodeforcesCrawler:
                 text = text.strip()
                 info = self.user_info(text)
                 result.append(info)
-            return result
         except requests.Timeout:
             return ['Timeout']
+        else:
+            return result
 
     def get_json_api(self, text):
         plain_code = requests.get('http://codeforces.com/api/' + text, timeout=5)
