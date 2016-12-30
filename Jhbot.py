@@ -4,7 +4,7 @@ from ircmessage import IRCMessage
 from setting import botnick,masterNick
 from queue import Queue
 from score import Sent, Score
-from chib import fib, Chib, EE, Bi, Mkbi, Mkd
+from fibonacci import FibCalculator
 import re, threading, time
 from bojcrawl import BOJCrawler
 from cfcrawl import CodeforceCrawler, InitCFChangeList,CFRatingChange
@@ -29,6 +29,7 @@ class Bot():
         self.exDic = UpdateExDic(self.exList, self.exDic)
         self.boj = BOJCrawler()
         self.cf = CodeforcesCrawler()
+        self.fib = FibCalculator()
 
     def run(self):
         print('RUNNING')
@@ -86,42 +87,19 @@ class Bot():
                             for msg in msgs:
                                 self.irc.sendmsg(message.channel, msg)
                             continue
-                        
-                    parse = re.match(r'!치킨\s+(\d+)\s*(\S*)',message.msg)
-                    if parse:
-                        num = int(parse.group(1))
-                        etc = parse.group(2)
-                        if etc == '명' or etc == '':
-                            if num == 1:
-                                self.irc.sendmsg(message.channel, '1인1닭은 진리입니다')
-                                continue
-                            elif num == 2:
-                                self.irc.sendmsg(message.channel, '계산상 1마리지만 1인1닭에 따라 2마리가 적절합니다')
-                                continue
-                            elif num >= 573147844013817084101:
-                                self.irc.sendmsg(message.channel, '필요한 치킨이 너무 많아 셀 수 없습니다')
-                                continue
-                            else:
-                                self.irc.sendmsg(message.channel, '%d명에게는 %d마리의 치킨이 적절합니다' % (num, Chib(int(num))))
-                            if num == 12117:
-                                self.irc.sendmsg(message.channel, 'gs12117에게는 0.3마리의 치킨이면 충분합니다')
-                            if EE(num):
-                                self.irc.sendmsg(message.channel, '%d명에게는 %d마리의 치킨이 적절합니다' % (num, Chib(int(num))))
-                            if Bi(num):
-                                self.irc.sendmsg(message.channel, '%s명에게는 %s마리의 치킨이 적절합니다' % (Mkbi(Mkd(num)), Mkbi(Chib(int(Mkd(num))))))
-                            continue
 
-                    parse = re.match(r'!fib\s+(-?\d+)$',message.msg)
-                    if parse:
-                        num = int(parse.group(1))
-                        if num > 256:
-                            self.irc.sendmsg(message.channel, '[fib] result is too big')
-                        elif num < 0:
-                            self.irc.sendmsg(message.channel, '[fib] incorrect input')
-                        else:
-                            self.irc.sendmsg(message.channel, '[fib] %d' % fib[num])
+                    if message.msg.startswith('!치킨 '):
+                        msgs = self.fib.chicken_command(message.msg[4:])
+                        for msg in msgs:
+                            self.irc.sendmsg(message.channel, msg)
                         continue
-                    
+
+                    if messaage.msg.startswith('!fib '):
+                        msgs = self.fib.fib_command(message.msg[5:])
+                        for msg in msgs:
+                           self.irc.sendmsg(message.channel, msg)
+                        continue
+
                     parse = re.match(r'!백준\s+(\d+)$',message.msg)
                     if parse:
                         res = self.boj.command(parse.group(1))
@@ -138,7 +116,6 @@ class Bot():
                         for msg in msgs:
                             self.irc.sendmsg(message.channel, msg)
                         continue
-                        
                         
                     if message.msg == '부스터 옵줘':
                         self.irc.sendmode(message.channel,'+o ' + message.sender)
