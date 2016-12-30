@@ -3,19 +3,18 @@
 from ircmessage import IRCMessage
 from setting import botnick,masterNick
 from queue import Queue
-from score import Sent, Score
-from fibonacci import FibCalculator
-import re, threading, time
+import re
+import threading
+import time
 from bojcrawl import BOJCrawler
 from cfcrawl import CodeforceCrawler, InitCFChangeList,CFRatingChange
+from fibonacci import FibCalculator
+from score import Sent, Score
 from exchangecrawl import ExchangeCrawl, MakeNameDic, UpdateExDic, Exmsg
 
-callNameList = ['마폭시','큐베러버','참치','브랸','브리안','브리얀','젠카이노','!폭렬','!확률','!토픽']
-botNameList = [r'\b','C','bryan_a','cube1over','VBChunguk_bot','gn','kcm1700-bot','치즈','Diet-bot','JW270','Bonobot','B','Delphox','Draco','﻿','JJing_e','메구밍','시리우스','Pr','topic','피죤']
 class Bot():
     irc = None
     msgQueue = Queue()
-    channel_list = []
     exList = []
     nameDic = {}
     exDic = {}
@@ -35,22 +34,12 @@ class Bot():
         print('RUNNING')
         while True:
             packet = self.msgQueue.get()
-            if packet['type'] == 'msg':
-                msg = packet['content']
-                for channel in self.channel_list:
-                    self.irc.sendmsg(channel, msg)
-
-            elif packet['type'] == 'irc':
+            if packet['type'] == 'irc':
                 message = packet['content']
-                #print(message)
                 if message.msgType == 'INVITE':
                     print("%s invites to %s" % (message.sender, message.channel))
                     self.irc.joinchan(message.channel)
 
-                elif message.msgType == 'NOTICE':
-                    if message.sender == masterNick and message.channel == botnick:
-                        self.irc.semdmsg('#snucse16',message.msg)
-                        continue
                 elif message.msgType == 'MODE':
                     if message.msg == '+o ' + botnick:
                         self.irc.sendmsg(message.channel, '>ㅅ<')
@@ -58,8 +47,6 @@ class Bot():
                         self.irc.sendmsg(message.channel, 'ㅇㅅㅇ..')
 
                 elif message.msgType == 'PRIVMSG':
-                    if (message.sender in botNameList):
-                        continue
                     parse = re.match(r'!(\S+)\s+(.*)$',message.msg)
                     if parse:
                         command = parse.group(1)
@@ -68,7 +55,7 @@ class Bot():
                             smsg = Exmsg(contents,self.exDic,self.nameDic)
                             self.irc.sendmsg(message.channel, smsg)
                             continue
-                    
+
                         if command == '점수' or command == 'score':
                             sen = Sent(contents)
                             if sen == '':
@@ -106,40 +93,34 @@ class Bot():
                         for msg in res:
                             self.irc.sendmsg(message.channel, msg)
                         continue
-                    
+
                     if message.msg == '!환율':
                         self.irc.sendmsg(message.channel, 'ex)!환율 [숫자] <통화명> [-> <통화명>]')
                         continue
-                    
+
                     if message.msg == '!코포':
                         msgs = self.cf.command()
                         for msg in msgs:
                             self.irc.sendmsg(message.channel, msg)
                         continue
-                        
+
                     if message.msg == '부스터 옵줘':
                         self.irc.sendmode(message.channel,'+o ' + message.sender)
                         continue
-                    
-                    isCalled = False
-                    for x in callNameList:
-                        if message.msg.find(x) != -1:
-                            isCalled = True
-                            break
-                    if isCalled:
-                        continue
-                    
-                    if message.msg.find('치킨') != -1 and message.msg.find('치킨') < message.msg.find('먹') < message.msg.find('싶'):
+
+                    if message.msg.find('치킨') != -1\
+                            and message.msg.find('치킨') < message.msg.find('먹') < message.msg.find('싶'):
                         self.irc.sendmsg(message.channel, '치킨!')
                         continue
-                    
+
                     parse = re.search(r'부(우*)스터(어*)', message.msg)
                     if parse:
                         cry1 = len(parse.group(1))
                         cry2 = len(parse.group(2))
-                        self.irc.sendmsg(message.channel, '크' + ('으'*cry1 if cry1 < 10 else '으*%d' % cry1) + ('아'*cry2 if cry2 < 10 else '아*%d' % cry2) + '앙')
+                        self.irc.sendmsg(message.channel, '크'\
+                                + ('으'*cry1 if cry1 < 10 else '으*%d' % cry1)\
+                                + ('아'*cry2 if cry2 < 10 else '아*%d' % cry2) + '앙')
                         continue
-                    
 
     def loopExCrawl(self):
         while True:
@@ -147,7 +128,7 @@ class Bot():
             self.exList = ExchangeCrawl()
             self.nameDic = MakeNameDic(self.exList)
             self.exDic = UpdateExDic(self.exList, self.exDic)
-            
+
     def loopCFCrawl(self):
         RCList = InitCFChangeList('PJH0123')
         while True:
@@ -159,13 +140,14 @@ class Bot():
                     RCList.append(ch['contestId'])
                     score = ch['newRating']-ch['oldRating']
                     score = chr(3) + ('12+' if score >= 0 else '07-') + str(abs(score)) + chr(3)
-                    self.irc.sendmsg('#Jhuni', "[codeforeces] %s %d -> %d (%s) #%d at contest%d" % ('PJH0123', ch['oldRating'], ch['newRating'], score, ch['rank'], ch['contestId']))
+                    self.irc.sendmsg('#Jhuni', "[codeforeces] %s %d -> %d (%s) #%d at contest%d"\
+                            % ('PJH0123', ch['oldRating'], ch['newRating'], score, ch['rank'], ch['contestId']))
 
     def start(self):
         threading.Thread(target = self.loopExCrawl, daemon = True).start()
         threading.Thread(target = self.loopCFCrawl, daemon = True).start()
         self.run()
-        
+
 if __name__ == '__main__':
     bot = Bot()
     bot.start()
