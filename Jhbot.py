@@ -7,7 +7,7 @@ import re
 import threading
 import time
 from bojcrawl import BOJCrawler
-from cfcrawl import CodeforceCrawler, InitCFChangeList,CFRatingChange
+from cfcrawl import CodeforcesCrawler, InitCFChangeList,CFRatingChange
 from fibonacci import FibCalculator
 from score import Sent, Score
 from exchangecrawl import ExchangeCrawl, MakeNameDic, UpdateExDic, Exmsg
@@ -70,7 +70,7 @@ class Bot():
                                 continue
 
                         if command == '코포':
-                            msgs = self.cf.user_info(contents)
+                            msgs = self.cf.command(contents)
                             for msg in msgs:
                                 self.irc.sendmsg(message.channel, msg)
                             continue
@@ -81,7 +81,7 @@ class Bot():
                             self.irc.sendmsg(message.channel, msg)
                         continue
 
-                    if messaage.msg.startswith('!fib '):
+                    if message.msg.startswith('!fib '):
                         msgs = self.fib.fib_command(message.msg[5:])
                         for msg in msgs:
                            self.irc.sendmsg(message.channel, msg)
