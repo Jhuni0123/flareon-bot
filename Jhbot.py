@@ -33,7 +33,6 @@ class Bot():
     def run(self):
         while True:
             message = self.irc.get_next_msg()
-            print(message)
             if message['command'] == 'INVITE':
                 print("%s invites to %s" % (message['sender'], message['channel']))
                 self.irc.joinchan(message['channel'])
@@ -70,7 +69,7 @@ class Bot():
                         self.irc.send_msg(message['target'], msg)
 
                 if message['text'] == '부스터 옵줘':
-                    self.irc.mode(message['target'],'+o ' + message['sender'])
+                    self.irc.set_mode(message['target'],'+o',[message['sender']])
                     continue
 
                 if message['text'].find('치킨') != -1\

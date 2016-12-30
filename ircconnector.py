@@ -31,6 +31,9 @@ class IRCConnector:
     def set_topic(self, chan_name, text):
         self._send('TOPIC ' + chan_name + ' :' + text)
 
+    def set_mode(self, chan_name, mode, user_list):
+        self._send('MODE %s %s %s' % (chan_name, mode, ' '.join(user_list)))
+
     def part_chan(self, chan_name, text = ''):
         self._send('PART ' + chan_name + ' ' + text)
 
