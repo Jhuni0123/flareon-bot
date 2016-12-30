@@ -7,7 +7,7 @@ from score import Sent, Score
 from chib import fib, Chib, EE, Bi, Mkbi, Mkd
 import re, threading, time
 from bojcrawl import BOJCrawler
-from cfcrawl import CFContestList,CFUserInfo,InitCFChangeList,CFRatingChange
+from cfcrawl import CodeforceCrawler, InitCFChangeList,CFRatingChange
 from exchangecrawl import ExchangeCrawl, MakeNameDic, UpdateExDic, Exmsg
 
 callNameList = ['마폭시','큐베러버','참치','브랸','브리안','브리얀','젠카이노','!폭렬','!확률','!토픽']
@@ -28,6 +28,7 @@ class Bot():
         self.nameDic = MakeNameDic(self.exList)
         self.exDic = UpdateExDic(self.exList, self.exDic)
         self.boj = BOJCrawler()
+        self.cf = CodeforcesCrawler()
 
     def run(self):
         print('RUNNING')
@@ -81,8 +82,9 @@ class Bot():
                                 continue
 
                         if command == '코포':
-                            smsg = CFUserInfo(contents)
-                            self.irc.sendmsg(message.channel, smsg)
+                            msgs = self.cf.user_info(contents)
+                            for msg in msgs:
+                                self.irc.sendmsg(message.channel, msg)
                             continue
                         
                     parse = re.match(r'!치킨\s+(\d+)\s*(\S*)',message.msg)
@@ -132,19 +134,10 @@ class Bot():
                         continue
                     
                     if message.msg == '!코포':
-                        contestlist = CFContestList()
-                        if contestlist != False:
-                            if len(contestlist) == 0:
-                                self.irc.sendmsg(message.channel, 'No contest yet')
-                                continue
-                            contestlist = sorted(contestlist, key=lambda con: con[5])
-                            for i  in range(min(len(contestlist),2 if message.channel != '#Jhuni' else len(contestlist))):
-                                con = contestlist[i]
-                                self.irc.sendmsg(message.channel, '[%s] %s | %s | %s | %s' % (con[0],con[1], con[2],con[3],con[4]))
-                            continue
-                        else:
-                            self.irc.sendmsg(message.channel, 'Timeout')
-                            continue
+                        msgs = self.cf.command()
+                        for msg in msgs:
+                            self.irc.sendmsg(message.channel, msg)
+                        continue
                         
                         
                     if message.msg == '부스터 옵줘':
