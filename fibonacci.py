@@ -38,6 +38,8 @@ class FibCalculator:
             return self.fib[n]
 
     def chicken_command(self, text):
+        if text == None:
+            return []
         try:
             result = []
             text = text.strip()
@@ -70,6 +72,8 @@ class FibCalculator:
             return result
 
     def fib_command(self, text):
+        if text == None:
+            return []
         result = []
         text = text.strip()
         try:

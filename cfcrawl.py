@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import requests, json
 from bs4 import BeautifulSoup
 import re, time
@@ -48,20 +50,23 @@ class CodeforcesCrawler:
             result.append('[%s] %s | %s | %s | %s' % (con[0],con[1], con[2],con[3],con[4]))
         return result
 
-    def user_info(self, user_handle):
+    def users_info(self, user_handle):
         js = self.get_json_api("user.info?handles=" + user_handle)
         if js.get('status') == 'OK':
-            result = js.get('result')[0]
+            ret = []
+            result = js.get('result')
+            for user in result:
+                user_handle = user.get('handle')
+                rank = user.get('rank','None')
+                rating = user.get('rating')
+                if rating :
+                    rating = str(rating)
+                else:
+                    rating = 'None'
+                ret.append('[Codeforces] ' + user_handle + ' : ' + rank + ' - ' + rating)
+            return ret
         else:
             return js.get('comment')
-        user_handle = result.get('handle')
-        rank = result.get('rank','None')
-        rating = result.get('rating')
-        if rating :
-            rating = str(rating)
-        else:
-            rating = 'None'
-        return '[Codeforces] ' + user_handle + ' : ' + rank + ' - ' + rating
 
     def command(self, text=None):
         try:
@@ -74,8 +79,8 @@ class CodeforcesCrawler:
                     result.extend(contests)
             else:
                 text = text.strip()
-                info = self.user_info(text)
-                result.append(info)
+                info = self.users_info(text)
+                result.extend(info)
         except requests.Timeout:
             return ['Timeout']
         else:

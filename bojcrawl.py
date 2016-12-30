@@ -21,6 +21,9 @@ class BOJCrawler:
                 return title
 
     def command(self, text):
+        if text == None:
+            return []
+        text = text.strip()
         try:
             result = []
             if text.isnumeric():

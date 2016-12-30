@@ -28,6 +28,8 @@ class Counter:
         return True
 
     def command(self, text):
+        if text == None:
+            return []
         result = []
         if self.valid_phrase(text):
             score = self.score(text)

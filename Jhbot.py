@@ -45,58 +45,32 @@ class Bot():
                     self.irc.send_msg(message['target'], 'ㅇㅅㅇ..')
 
             elif message['command'] == 'PRIVMSG':
-                parse = re.match(r'!(\S+)\s+(.*)$',message['text'])
+                parse = re.match(r'!(\S+)(?: (.*))?$',message['text'])
                 if parse:
                     command = parse.group(1)
-                    contents = parse.group(2)
+                    text = parse.group(2)
+                    result = []
                     if command == '환율':
-                        smsg = Exmsg(contents,self.exDic,self.nameDic)
-                        self.irc.send_msg(message['target'], smsg)
-                        continue
-
-                    if command == '점수' or command == 'score':
-                        msgs = self.counter.command(contents)
-                        for msg in msgs:
-                            self.irc.send_msg(message['target'], msg)
-                        continue
-
-                    if command == '코포':
-                        msgs = self.cf.command(contents)
-                        for msg in msgs:
-                            self.irc.send_msg(message['target'], msg)
-                        continue
-
-                if message['text'].startswith('!치킨 '):
-                    msgs = self.fib.chicken_command(message['text'][4:])
-                    for msg in msgs:
+                        if text == None:
+                            result.append('ex)!환율 [숫자] <통화명> [-> <통화명>]')
+                        else:
+                            smsg = Exmsg(text,self.exDic,self.nameDic)
+                            result.append(smsg)
+                    elif command == '점수' or command == 'score':
+                        result = self.counter.command(text)
+                    elif command == '코포':
+                        result = self.cf.command(text)
+                    elif command == '치킨':
+                        result = self.fib.chicken_command(text)
+                    elif command == 'fib':
+                        result = self.fib.fib_command(text)
+                    elif command == '백준':
+                        result = self.boj.command(text)
+                    for msg in result:
                         self.irc.send_msg(message['target'], msg)
-                    continue
-
-                if message['text'].startswith('!fib '):
-                    msgs = self.fib.fib_command(message['text'][5:])
-                    for msg in msgs:
-                       self.irc.send_msg(message['target'], msg)
-                    continue
-
-                parse = re.match(r'!백준\s+(\d+)$',message['text'])
-                if parse:
-                    res = self.boj.command(parse.group(1))
-                    for msg in res:
-                        self.irc.send_msg(message['target'], msg)
-                    continue
-
-                if message['text'] == '!환율':
-                    self.irc.send_msg(message['target'], 'ex)!환율 [숫자] <통화명> [-> <통화명>]')
-                    continue
-
-                if message['text'] == '!코포':
-                    msgs = self.cf.command()
-                    for msg in msgs:
-                        self.irc.send_msg(message['target'], msg)
-                    continue
 
                 if message['text'] == '부스터 옵줘':
-                    self.irc.sendmode(message['target'],'+o ' + message['sender'])
+                    self.irc.mode(message['target'],'+o ' + message['sender'])
                     continue
 
                 if message['text'].find('치킨') != -1\
