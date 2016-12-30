@@ -5,9 +5,10 @@ import re
 class BOJCrawler:
     address = 'https://www.acmicpc.net/'
     short_address = 'https://boj.kr/'
+
     def get_problem_title(self, num):
         try:
-            plainCode = request.get(address + 'problem/' + str(num), timeout = 5)
+            plainCode = requests.get(self.address + 'problem/' + str(num), timeout = 5)
             soup = BeautifulSoup(plainCode.text, 'html.parser')
             title = soup.select('head > title')[0].string
             if title == 'Baekjoon Online Judge':
@@ -20,16 +21,18 @@ class BOJCrawler:
             return False
 
     def command(self, text):
+        result = []
         if text.isnumeric():
             num = int(text)
             try:
                 title = self.get_problem_title(num)
             except requests.Timeout:
-                return ['Timeout']
+                result.append('Timeout')
             if title:
-                return ['%s - %s/%d' % (title, short_address, num)]
+                result.append('%s -> %s%d' % (title, self.short_address, num))
             else:
-                return ['Problem not found']
+                result.append('Problem not found')
+        return result
 
 def BOJCrawl(url):
     try:
