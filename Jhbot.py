@@ -7,7 +7,7 @@ import re
 import threading
 import time
 from modules.bojcrawl import BOJCrawler
-from modules.cfcrawl import CodeforcesCrawler, InitCFChangeList,CFRatingChange
+from modules.cfcrawl import CodeforcesCrawler, InitCFChangeList, CFRatingChange
 from modules.fibonacci import FibCalculator
 from modules.counter import Counter
 from modules.xratecrawl import XRateCrawler
@@ -30,6 +30,7 @@ class Bot():
     def run(self):
         while True:
             message = self.irc.get_next_msg()
+            print(message)
             if message['command'] == 'INVITE':
                 print("%s invites to %s" % (message['sender'], message['channel']))
                 self.irc.joinchan(message['channel'])
@@ -45,7 +46,7 @@ class Bot():
                 if parse:
                     command = parse.group(1).lower()
                     text = parse.group(2)
-                    result = []
+                    result = None
                     if command in ['환율', 'xr']:
                         result = self.xrate.command(text)
                     elif command in ['점수', 'score']:
@@ -58,8 +59,10 @@ class Bot():
                         result = self.fib.fib_command(text)
                     elif command in ['백준', 'boj']:
                         result = self.boj.command(text)
-                    for msg in result:
-                        self.irc.send_msg(message['target'], msg)
+                    if result != None:
+                        for msg in result:
+                            self.irc.send_msg(message['target'], msg)
+                        continue
 
                 if message['text'] == '부스터 옵줘':
                     self.irc.set_mode(message['target'],'+o',[message['sender']])

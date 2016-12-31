@@ -50,6 +50,4 @@ class IRCMessage(dict):
                 self['text'] = ' '.join(params)
         else:
             self['text'] = msg
-        print(msg)
-        print(self)
 

@@ -138,6 +138,3 @@ class XRateCrawler:
                     return ['Not Found']
             else:
                 return [self.help_msg]
-
-a = XRateCrawler()
-print(a.command('엔'))

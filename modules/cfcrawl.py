@@ -66,7 +66,7 @@ class CodeforcesCrawler:
                 ret.append('[Codeforces] ' + user_handle + ' : ' + rank + ' - ' + rating)
             return ret
         else:
-            return js.get('comment')
+            return [js.get('comment')]
 
     def command(self, text=None):
         try:
