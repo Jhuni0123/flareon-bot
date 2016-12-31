@@ -10,21 +10,16 @@ from modules.bojcrawl import BOJCrawler
 from modules.cfcrawl import CodeforcesCrawler, InitCFChangeList,CFRatingChange
 from modules.fibonacci import FibCalculator
 from modules.counter import Counter
-from modules.exchangecrawl import ExchangeCrawl, MakeNameDic, UpdateExDic, Exmsg
+from modules.xratecrawl import XRateCrawler
 
 class Bot():
-    exList = []
-    nameDic = {}
-    exDic = {}
     def __init__(self, server, port):
         self.irc = IRCConnector(server, port)
         self.irc.init_user(botname)
         self.irc.set_nick(botnick)
 
         # init modules
-        self.exList = ExchangeCrawl()
-        self.nameDic = MakeNameDic(self.exList)
-        self.exDic = UpdateExDic(self.exList, self.exDic)
+        self.xrate = XRateCrawler()
         self.boj = BOJCrawler()
         self.cf = CodeforcesCrawler()
         self.fib = FibCalculator()
@@ -48,24 +43,20 @@ class Bot():
             elif message['command'] == 'PRIVMSG':
                 parse = re.match(r'!(\S+)(?: (.*))?$',message['text'])
                 if parse:
-                    command = parse.group(1)
+                    command = parse.group(1).lower()
                     text = parse.group(2)
                     result = []
-                    if command == '환율':
-                        if text == None:
-                            result.append('ex)!환율 [숫자] <통화명> [-> <통화명>]')
-                        else:
-                            smsg = Exmsg(text,self.exDic,self.nameDic)
-                            result.append(smsg)
-                    elif command == '점수' or command == 'score':
+                    if command in ['환율', 'xr']:
+                        result = self.xrate.command(text)
+                    elif command in ['점수', 'score']:
                         result = self.counter.command(text)
-                    elif command == '코포':
+                    elif command in ['코포', 'cf']:
                         result = self.cf.command(text)
                     elif command == '치킨':
                         result = self.fib.chicken_command(text)
                     elif command == 'fib':
                         result = self.fib.fib_command(text)
-                    elif command == '백준':
+                    elif command in ['백준', 'boj']:
                         result = self.boj.command(text)
                     for msg in result:
                         self.irc.send_msg(message['target'], msg)
@@ -91,9 +82,7 @@ class Bot():
     def loopExCrawl(self):
         while True:
             time.sleep(5*60)
-            self.exList = ExchangeCrawl()
-            self.nameDic = MakeNameDic(self.exList)
-            self.exDic = UpdateExDic(self.exList, self.exDic)
+            self.xrate.update()
 
     def loopCFCrawl(self):
         RCList = InitCFChangeList('PJH0123')
