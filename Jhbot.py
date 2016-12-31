@@ -26,7 +26,9 @@ class Bot():
         self.fib = FibCalculator()
         self.counter = Counter()
 
-        self.join_prevchan() 
+        self.join_prevchan()
+        self.botnames = self.getdb('botname')
+        self.keywords = self.getdb('keyword')
 
     def run(self):
         while True:
@@ -43,6 +45,8 @@ class Bot():
                     self.irc.send_msg(message['target'], 'ㅇㅅㅇ..')
 
             elif message['command'] == 'PRIVMSG':
+                if message['sender'] in botname:
+                    continue
                 parse = re.match(r'!(\S+)(?: (.*))?$',message['text'])
                 if parse:
                     command = parse.group(1).lower()
@@ -65,6 +69,14 @@ class Bot():
                             self.irc.send_msg(message['target'], msg)
                         continue
 
+                called = False
+                for keyword in self.keywords:
+                    if message['text'].find(keyword) != -1:
+                        called = True
+                        break
+                if called:
+                    continue
+
                 if message['text'] == '부스터 옵줘':
                     self.irc.set_mode(message['target'],'+o',[message['sender']])
                     continue
@@ -84,10 +96,9 @@ class Bot():
                     continue
 
     def join_prevchan(self):
-        chanlist = self.opendb('chanlist')
+        chanlist = self.getdb('chanlist')
         for chan in chanlist:
-            self.irc.join_chan(chan.strip())
-        chanlist.close()
+            self.irc.join_chan(chan)
 
     def opendb(self, filename):
         dbdir = 'db/'
@@ -98,6 +109,19 @@ class Bot():
             file.close()
         file = open(dbdir + filename, 'r+')
         return file
+
+    def getdb(self, filename):
+        dbdir = 'db/'
+        if os.path.isdir(dbdir) == False:
+            os.mkdir(dbdir)
+        if not os.path.exists(dbdir + filename):
+            file = open(dbdir + filename, 'w')
+            file.close()
+        file = open(dbdir + filename, 'r+')
+        db = []
+        for line in file:
+            db.append(line.strip())
+        return db
 
     def loopExCrawl(self):
         while True:
