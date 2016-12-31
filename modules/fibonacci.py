@@ -7,7 +7,7 @@ class FibCalculator:
     def __init__(self):
         self.MAX_N = 256
         self.fib = [0,1]
-        self.fib_minus = [1,-1]
+        self.fib_minus = [0,1]
         for _ in range(self.MAX_N):
             self.fib.append(self.fib[-1] + self.fib[-2])
             self.fib_minus.append(self.fib_minus[-2] - self.fib_minus[-1])
