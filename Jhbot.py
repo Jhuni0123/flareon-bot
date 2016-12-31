@@ -6,11 +6,11 @@ from config import *
 import re
 import threading
 import time
-from bojcrawl import BOJCrawler
-from cfcrawl import CodeforcesCrawler, InitCFChangeList,CFRatingChange
-from fibonacci import FibCalculator
-from counter import Counter
-from exchangecrawl import ExchangeCrawl, MakeNameDic, UpdateExDic, Exmsg
+from modules.bojcrawl import BOJCrawler
+from modules.cfcrawl import CodeforcesCrawler, InitCFChangeList,CFRatingChange
+from modules.fibonacci import FibCalculator
+from modules.counter import Counter
+from modules.exchangecrawl import ExchangeCrawl, MakeNameDic, UpdateExDic, Exmsg
 
 class Bot():
     exList = []
@@ -20,6 +20,8 @@ class Bot():
         self.irc = IRCConnector(server, port)
         self.irc.init_user(botname)
         self.irc.set_nick(botnick)
+
+        # init modules
         self.exList = ExchangeCrawl()
         self.nameDic = MakeNameDic(self.exList)
         self.exDic = UpdateExDic(self.exList, self.exDic)
