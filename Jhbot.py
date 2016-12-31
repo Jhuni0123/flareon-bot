@@ -4,6 +4,7 @@ from ircconnector import IRCConnector
 from ircmessage import IRCMessage
 from config import *
 import re
+import os
 import threading
 import time
 from modules.bojcrawl import BOJCrawler
@@ -25,7 +26,7 @@ class Bot():
         self.fib = FibCalculator()
         self.counter = Counter()
 
-        self.irc.join_chan('#jhuni-bot-test')
+        self.join_prevchan() 
 
     def run(self):
         while True:
@@ -81,6 +82,22 @@ class Bot():
                             + ('으'*cry1 if cry1 < 10 else '으*%d' % cry1)\
                             + ('아'*cry2 if cry2 < 10 else '아*%d' % cry2) + '앙')
                     continue
+
+    def join_prevchan(self):
+        chanlist = self.opendb('chanlist')
+        for chan in chanlist:
+            self.irc.join_chan(chan.strip())
+        chanlist.close()
+
+    def opendb(self, filename):
+        dbdir = 'db/'
+        if os.path.isdir(dbdir) == False:
+            os.mkdir(dbdir)
+        if not os.path.exists(dbdir + filename):
+            file = open(dbdir + filename, 'w')
+            file.close()
+        file = open(dbdir + filename, 'r+')
+        return file
 
     def loopExCrawl(self):
         while True:
