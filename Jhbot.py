@@ -45,7 +45,7 @@ class Bot():
                     self.irc.send_msg(message['target'], 'ㅇㅅㅇ..')
 
             elif message['command'] == 'PRIVMSG':
-                if message['sender'] in botname:
+                if message['sender'] in self.botnames:
                     continue
                 parse = re.match(r'!(\S+)(?: (.*))?$',message['text'])
                 if parse:
