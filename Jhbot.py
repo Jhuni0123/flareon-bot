@@ -129,10 +129,10 @@ class Bot():
             self.xrate.update()
 
     def loopCFCrawl(self):
-        RCList = InitCFChangeList('PJH0123')
+        RCList = InitCFChangeList('Jhuni')
         while True:
             time.sleep(5*60)
-            newList = CFRatingChange('PJH0123',RCList)
+            newList = CFRatingChange('Jhuni',RCList)
             if newList:
                 for i in range(max(len(newList)-2,0),len(newList)):
                     ch = newList[i]
@@ -140,7 +140,7 @@ class Bot():
                     score = ch['newRating']-ch['oldRating']
                     score = chr(3) + ('12+' if score >= 0 else '07-') + str(abs(score)) + chr(3)
                     self.irc.send_msg('#Jhuni', "[codeforeces] %s %d -> %d (%s) #%d at contest%d"\
-                            % ('PJH0123', ch['oldRating'], ch['newRating'], score, ch['rank'], ch['contestId']))
+                            % ('Jhuni', ch['oldRating'], ch['newRating'], score, ch['rank'], ch['contestId']))
 
     def start(self):
         threading.Thread(target = self.loopExCrawl, daemon = True).start()
