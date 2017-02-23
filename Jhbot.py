@@ -36,7 +36,7 @@ class Bot():
             print(message)
             if message['command'] == 'INVITE':
                 print("%s invites to %s" % (message['sender'], message['channel']))
-                self.irc.joinchan(message['channel'])
+                self.irc.join_chan(message['channel'])
 
             elif message['command'] == 'MODE':
                 if message['mode'] == '+o' and message['users'][0] == botnick:

@@ -23,7 +23,7 @@ class IRCMessage(dict):
                 self['target'] = params[0]
                 self['text'] = text
             elif command == 'INVITE':
-                self['target'] = params[1]
+                self['channel'] = text
             elif command == 'MODE':
                 self['target'] = params[0]
                 self['mode'] = params[1]
