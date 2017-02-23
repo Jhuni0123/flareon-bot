@@ -40,6 +40,8 @@ class CodeforcesCrawler:
                         remainsec = relsec
                     remain = '%02d:%02d:%02d' % (remainsec//60//60%24, remainsec//60%60, remainsec%60)
                     if remainsec//60//60//24 > 0:
+                        if remainsec//60//60//24 > 6:
+                            continue
                         remain = '%dday%s ' % (remainsec//60//60//24, '' if remainsec//60//60//24 == 1 else 's') + remain
                 else:
                     remain = ''
