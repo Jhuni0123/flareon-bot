@@ -84,14 +84,23 @@ class CodeforcesCrawler:
                 info = self.users_info(text)
                 result.extend(info)
         except requests.Timeout:
-            return ['Timeout']
+            return ['Request timeout']
+        except ValueError:
+            return ['Fail to get api']
+        except Exception as e:
+            print(type(e))
+            print(e)
+            return ['Unexpected error occurred']
         else:
             return result
 
     def get_json_api(self, text):
-        plain_code = requests.get('http://codeforces.com/api/' + text, timeout=5)
-        res = json.loads(plain_code.text)
-        return res
+        response = requests.get('http://codeforces.com/api/' + text, timeout=5)
+        try:
+            return response.json()
+        except:
+            raise
+
 
 def CFRatingChange(handle,preList):
     url = 'http://codeforces.com/api/user.rating?handle='+handle
