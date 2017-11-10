@@ -33,7 +33,7 @@ class Bot():
     def run(self):
         while True:
             message = self.irc.get_next_msg()
-            print(message)
+            #print(message)
             if message['command'] == 'INVITE':
                 print("%s invites to %s" % (message['sender'], message['channel']))
                 self.irc.join_chan(message['channel'])

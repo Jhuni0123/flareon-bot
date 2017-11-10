@@ -3,6 +3,7 @@
 import requests
 from bs4 import BeautifulSoup
 from time import sleep
+from datetime import datetime
 import re
 
 
@@ -17,6 +18,8 @@ class XRateCrawler:
 
     def update(self):
         self.xr_list = self.crawl_xrate()
+        print(datetime.now())
+        print(len(self.xr_list))
         self.name_to_sym = self.make_name_to_sym(self.xr_list)
         self.xrate = self.update_xrate(self.xr_list, self.xrate)
 
