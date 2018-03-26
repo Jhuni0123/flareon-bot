@@ -44,16 +44,23 @@ class XRateCrawler:
         return dic
 
     def update_xrate(self, List,dic):
-        dic['info'] = List[0][1]
-        for i in range(1,len(List)):
-            name = List[i][0]
-            parse = re.match(r'(\S+)(\s*\S*)\s+([A-Z]{3})\s*(\S*)$',name)
-            if parse:
-                ctry = parse.group(1)+parse.group(2)
-                simbol = parse.group(3)
-                isHundred = not parse.group(4)==''
-                dic[simbol]=(float(List[i][1].replace(',','')),isHundred)
-        return dic
+        try:
+            dic['info'] = List[0][1]
+            for i in range(1,len(List)):
+                name = List[i][0]
+                parse = re.match(r'(\S+)(\s*\S*)\s+([A-Z]{3})\s*(\S*)$',name)
+                if parse:
+                    ctry = parse.group(1)+parse.group(2)
+                    simbol = parse.group(3)
+                    isHundred = not parse.group(4)==''
+                    dic[simbol]=(float(List[i][1].replace(',','')),isHundred)
+            return dic
+        except Exception as e:
+            print(datetime.now())
+            print(e)
+            print(List)
+            print(dic)
+            return dic
 
     def crawl_xrate(self):
         List = []
