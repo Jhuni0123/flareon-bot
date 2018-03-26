@@ -1,7 +1,7 @@
-Jhuni's irc bot
-==
+# Flareon irc bot
+`regex/부우*스으*터어*/` 라고 말하면 반응하는 봇 
 
-##Features
+## Features
 
 - exchange rate ( !환율 [숫자] <통화명> [-> <통화명>] )
 
@@ -16,3 +16,8 @@ Jhuni's irc bot
 - Codeforces profile ( !코포 \<handle> )
 
 - BOJ link ( !백준 <문제번호> )
+
+## Run
+```shell
+python3 bot.py
+```
