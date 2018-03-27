@@ -1,5 +1,5 @@
 # Flareon irc bot
-`regex/부우*스으*터어*/` 라고 말하면 반응하는 봇 
+`regex/부우*스터어*/` 라고 말하면 반응하는 봇 
 
 ## Features
 
