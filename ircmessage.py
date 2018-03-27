@@ -19,9 +19,19 @@ class IRCMessage(dict):
             self['command'] = command
             if command == 'PING':
                 self['server'] = text.strip()
-            elif command in ['NOTICE', 'PRIVMSG', 'TOPIC']:
+            elif command in ['NOTICE', 'TOPIC']:
                 self['target'] = params[0]
                 self['text'] = text
+            elif command == 'PRIVMSG':
+                self['target'] = params[0]
+                self['text'] = text
+                # for support relay bot
+                # '<sender> example text'
+                match = re.match('^<(\S+)> (.+)$', text)
+                if match:
+                    sender, text = match.groups()
+                    self['sender'] = sender
+                    self['text'] = text
             elif command == 'INVITE':
                 self['channel'] = text
             elif command == 'MODE':
